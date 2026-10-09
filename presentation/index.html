@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Юзабилити «Планёрки»</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+:root{
+  --ground:#E9E6E2; --surface:#FFFFFF; --surface-2:#F7F5F3;
+  --ink:#1E1B19; --muted:#6A625D; --line:#DCD8D4; --line-soft:#ECE9E6;
+  --accent:#9C4A2F; --accent-soft:#F6E7E1; --accent-ink:#7A3722;
+  --bar:#2F5F8A; --bar-soft:#DCE6EF; --crit:#A3392F; --crit-soft:#F6E2DF; --ok:#3F7A4F;
+  --ui:"Onest","Segoe UI",system-ui,sans-serif; --mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#0F0D0C; --surface:#1B1817; --surface-2:#221E1C;
+    --ink:#EAE6E3; --muted:#9B928C; --line:#34302D; --line-soft:#272321;
+    --accent:#D0785A; --accent-soft:#2B1B15; --accent-ink:#E9A184;
+    --bar:#79A6CF; --bar-soft:#1C2833; --crit:#DE7E73; --crit-soft:#2C1917; --ok:#66B07A;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0F0D0C; --surface:#1B1817; --surface-2:#221E1C;
+  --ink:#EAE6E3; --muted:#9B928C; --line:#34302D; --line-soft:#272321;
+  --accent:#D0785A; --accent-soft:#2B1B15; --accent-ink:#E9A184;
+  --bar:#79A6CF; --bar-soft:#1C2833; --crit:#DE7E73; --crit-soft:#2C1917; --ok:#66B07A;
+}
+*{box-sizing:border-box}
+html,body{margin:0; height:100%}
+body{background:var(--ground); color:var(--ink); font-family:var(--ui); -webkit-font-smoothing:antialiased; overflow:hidden}
+:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+
+/* сцена 1280×720, масштабируется под окно */
+.stage{position:fixed; inset:0; display:grid; place-items:center}
+.deck{width:1280px; height:720px; position:relative; transform-origin:center center}
+.slide{
+  position:absolute; inset:0; background:var(--surface); border-radius:14px;
+  padding:60px 72px 64px; display:none; flex-direction:column;
+  box-shadow:0 2px 4px rgba(0,0,0,.06), 0 30px 60px -30px rgba(0,0,0,.35);
+}
+.slide.on{display:flex}
+.kick{font-family:var(--mono); font-size:14px; letter-spacing:.12em; text-transform:uppercase; color:var(--accent); font-weight:600; margin-bottom:12px}
+h1{font-size:60px; line-height:1.05; letter-spacing:-.025em; margin:0 0 22px; text-wrap:balance}
+h2{font-size:40px; line-height:1.1; letter-spacing:-.02em; margin:0 0 28px; text-wrap:balance}
+p, li{font-size:22px; line-height:1.5}
+.muted{color:var(--muted)}
+.foot{position:absolute; left:72px; right:72px; bottom:26px; display:flex; justify-content:space-between; font-family:var(--mono); font-size:13px; color:var(--muted)}
+.cols{display:grid; grid-template-columns:1fr 1fr; gap:48px; flex:1; min-height:0}
+ul.clean{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:14px}
+ul.clean li{padding-left:26px; position:relative}
+ul.clean li::before{content:""; position:absolute; left:0; top:.62em; width:10px; height:10px; border-radius:2px; background:var(--accent)}
+
+.tiles{display:grid; grid-template-columns:repeat(4,1fr); gap:18px; margin-bottom:30px}
+.tile{background:var(--surface-2); border:1px solid var(--line-soft); border-radius:12px; padding:18px 20px}
+.tile .k{font-family:var(--mono); font-size:12.5px; text-transform:uppercase; letter-spacing:.09em; color:var(--muted); margin-bottom:6px}
+.tile .v{font-size:44px; font-weight:700; letter-spacing:-.02em; font-variant-numeric:tabular-nums; line-height:1.05}
+.tile .v small{font-size:20px; font-weight:500; color:var(--muted)}
+.tile .s{font-size:14.5px; color:var(--muted); margin-top:4px}
+
+/* горизонтальные столбцы */
+.chart{display:flex; flex-direction:column; gap:10px}
+.chart-t{font-size:17px; font-weight:600; margin-bottom:4px}
+.chart-t span{font-weight:400; color:var(--muted)}
+.row{display:grid; grid-template-columns:300px 1fr 92px; gap:14px; align-items:center; position:relative}
+.row .lab{font-size:17px; line-height:1.25}
+.row .lab b{font-family:var(--mono); font-size:13px; color:var(--muted); font-weight:500; margin-right:6px}
+.track{height:26px; position:relative; border-left:1px solid var(--line)}
+.fill{position:absolute; left:0; top:3px; bottom:3px; border-radius:0 4px 4px 0; background:var(--bar); min-width:2px}
+.fill.hot{background:var(--crit)}
+.dot{position:absolute; top:50%; width:10px; height:10px; margin:-5px 0 0 -5px; border-radius:50%; background:var(--surface); border:2px solid var(--ink)}
+.val{font-family:var(--mono); font-size:16px; font-variant-numeric:tabular-nums; text-align:right; color:var(--ink)}
+.row:hover .fill{filter:brightness(1.1)}
+.tip{
+  position:absolute; z-index:5; pointer-events:none; background:var(--ink); color:var(--surface);
+  font-size:14px; line-height:1.4; padding:8px 11px; border-radius:7px; max-width:320px; display:none; white-space:normal;
+}
+.badge{display:inline-flex; align-items:center; gap:6px; font-size:13px; font-weight:600; padding:3px 9px; border-radius:6px; background:var(--crit-soft); color:var(--crit); margin-left:8px; vertical-align:middle}
+.legend{display:flex; gap:20px; font-size:14.5px; color:var(--muted); margin-top:10px}
+.legend i{display:inline-block; width:14px; height:14px; border-radius:3px; vertical-align:-2px; margin-right:6px}
+
+table{border-collapse:collapse; width:100%; font-size:17px}
+th,td{text-align:left; padding:10px 12px; border-bottom:1px solid var(--line-soft)}
+th{font-family:var(--mono); font-size:12.5px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); font-weight:600}
+td.n{font-family:var(--mono); font-variant-numeric:tabular-nums; white-space:nowrap}
+
+.card{background:var(--surface-2); border:1px solid var(--line-soft); border-radius:12px; padding:22px 26px}
+.card h3{margin:0 0 8px; font-size:22px}
+.card p{margin:0; font-size:18.5px; line-height:1.5}
+.prio{display:flex; flex-direction:column; gap:16px}
+.prio .card{display:grid; grid-template-columns:54px 1fr; gap:18px; align-items:start}
+.prio .num{font-family:var(--mono); font-size:30px; font-weight:600; color:var(--accent); line-height:1}
+.hyp{display:flex; flex-direction:column; gap:14px}
+.hyp .card{border-left:4px solid var(--line)}
+.hyp .card.yes{border-left-color:var(--crit)}
+.hyp .card.part{border-left-color:var(--accent)}
+.hyp .card.no{border-left-color:var(--ok)}
+.verdict{font-family:var(--mono); font-size:13px; text-transform:uppercase; letter-spacing:.08em; font-weight:600; margin-bottom:6px}
+.yes .verdict{color:var(--crit)} .part .verdict{color:var(--accent)} .no .verdict{color:var(--ok)}
+
+.title-slide{justify-content:center}
+.title-slide .meta{margin-top:40px; display:flex; gap:40px; font-size:19px; color:var(--muted)}
+.title-slide .meta b{display:block; color:var(--ink); font-weight:600; font-size:20px}
+a{color:var(--accent)}
+
+/* навигация */
+.nav{position:fixed; bottom:14px; left:50%; transform:translateX(-50%); display:flex; gap:8px; align-items:center;
+  background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:5px 8px; z-index:10; font-family:var(--mono); font-size:13px; color:var(--muted)}
+.nav button{border:0; background:none; cursor:pointer; font:inherit; color:var(--ink); padding:5px 10px; border-radius:6px; font-size:16px}
+.nav button:hover{background:var(--surface-2)}
+@media print{
+  @page{size:1280px 720px; margin:0}
+  body{overflow:visible; background:#fff}
+  .stage{position:static; display:block}
+  .deck{transform:none!important; width:auto; height:auto}
+  .slide{display:flex!important; position:relative; width:1280px; height:720px; border-radius:0; box-shadow:none; page-break-after:always; break-after:page}
+  .nav{display:none}
+}
+</style>
+</head>
+<body>
+<div class="stage"><div class="deck" id="deck">
+
+<!-- 1 -->
+<section class="slide title-slide" aria-label="Титульный слайд">
+  <div class="kick">Кейс-задача № 5 · юзабилити-тестирование</div>
+  <h1>Приложение «Планёрка»:<br>результаты юзабилити-тестирования</h1>
+  <p class="muted" style="max-width:900px">Проверка того, может ли новый пользователь вести заметки во время совещания без обучения и подсказок.</p>
+  <div class="meta">
+    <div><b>Колесник Александр Русланович</b>группа ОБИ-32811МОвр</div>
+    <div><b>Университет «Синергия»</b>производственная практика, 2026</div>
+    <div><b>9 октября 2026 г.</b>дата тестирования</div>
+  </div>
+</section>
+
+<!-- 2 -->
+<section class="slide" aria-label="Введение">
+  <div class="kick">1 · Введение</div>
+  <h2>Что тестировали и зачем</h2>
+  <div class="cols">
+    <div>
+      <p style="margin-top:0"><b>Продукт.</b> «Планёрка» — веб-приложение для заметок на совещаниях, планёрках и деловых встречах. Создание, редактирование, удаление и поиск заметок; два способа хранения — SQLite и отдельные файлы.</p>
+      <p><b>Цель.</b> Проверить, выполнит ли пользователь, впервые открывший приложение, основные операции без обучения и подсказок.</p>
+    </div>
+    <div>
+      <p style="margin-top:0; font-weight:600">Что измеряли</p>
+      <ul class="clean">
+        <li>долю успешно выполненных заданий</li>
+        <li>время выполнения типовых операций</li>
+        <li>операции, вызывающие затруднения</li>
+        <li>уверенность в сохранности заметок — ключевое для записей во время совещания</li>
+      </ul>
+    </div>
+  </div>
+  <div class="foot"><span>Юзабилити «Планёрки»</span><span>2 / 9</span></div>
+</section>
+
+<!-- 3 -->
+<section class="slide" aria-label="Методы и подходы">
+  <div class="kick">2 · Методы и подходы</div>
+  <h2>Как проводилось тестирование</h2>
+  <div class="cols" style="grid-template-columns:1.05fr 1fr">
+    <div>
+      <table>
+        <thead><tr><th>№</th><th>Задание участнику</th></tr></thead>
+        <tbody id="task-list"></tbody>
+      </table>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:16px">
+      <div class="card"><h3>Участники</h3><p id="who"></p></div>
+      <div class="card"><h3>Инструмент</h3><p>Электронный протокол: таймер на каждое задание, исход «получилось / не смог», комментарий участника, анкета из 4 утверждений по шкале 1–5.</p></div>
+      <div class="card"><h3>Правила</h3><p>Задания сформулированы через цель, а не через кнопки; подсказки не давались. Медиана времени — по успешным попыткам.</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>Юзабилити «Планёрки»</span><span>3 / 9</span></div>
+</section>
+
+<!-- 4 -->
+<section class="slide" aria-label="Результаты: успешность">
+  <div class="kick">3 · Результаты</div>
+  <h2>Почти всё выполнено — кроме создания заметки</h2>
+  <div class="tiles" id="tiles"></div>
+  <div class="chart" id="ch-rate">
+    <div class="chart-t">Успешность по заданиям <span>· доля успешных попыток, %</span></div>
+  </div>
+  <div class="foot"><span>Юзабилити «Планёрки»</span><span>4 / 9</span></div>
+</section>
+
+<!-- 5 -->
+<section class="slide" aria-label="Результаты: время">
+  <div class="kick">3 · Результаты</div>
+  <h2>Дольше всего — создание заметки и фильтр по датам</h2>
+  <div class="chart" id="ch-time">
+    <div class="chart-t">Время выполнения <span>· медиана успешных попыток, секунды; точки — отдельные участники</span></div>
+  </div>
+  <div class="legend"><span><i style="background:var(--bar)"></i>медиана</span><span><i style="background:var(--surface);border:2px solid var(--ink);border-radius:50%"></i>участник</span><span><i style="background:var(--crit)"></i>узкое место</span></div>
+  <div class="foot"><span>Юзабилити «Планёрки»</span><span>5 / 9</span></div>
+</section>
+
+<!-- 6 -->
+<section class="slide" aria-label="Результаты: анкета">
+  <div class="kick">3 · Результаты</div>
+  <h2>Сохранности доверяют, к регулярному использованию готовы меньше</h2>
+  <div class="chart" id="ch-q">
+    <div class="chart-t">Анкета <span>· средняя оценка согласия, шкала 1–5; точки — отдельные участники</span></div>
+  </div>
+  <p class="muted" style="font-size:16px; margin-top:22px">Анкета учтена по участникам, выполнившим сценарий полностью.</p>
+  <div class="foot"><span>Юзабилити «Планёрки»</span><span>6 / 9</span></div>
+</section>
+
+<!-- 7 -->
+<section class="slide" aria-label="Проверка гипотез">
+  <div class="kick">3 · Результаты</div>
+  <h2>Что подтвердилось</h2>
+  <div class="hyp">
+    <div class="card yes"><div class="verdict">Узкое место</div><h3>Создание заметки</h3><p id="h1"></p></div>
+    <div class="card part"><div class="verdict">Гипотеза подтверждена частично</div><h3>Фильтры по дате малозаметны</h3><p id="h2"></p></div>
+    <div class="card no"><div class="verdict">Гипотеза не подтвердилась</div><h3>Переключение хранилищ неочевидно</h3><p id="h3"></p></div>
+  </div>
+  <div class="foot"><span>Юзабилити «Планёрки»</span><span>7 / 9</span></div>
+</section>
+
+<!-- 8 -->
+<section class="slide" aria-label="Рекомендации">
+  <div class="kick">4 · Рекомендации</div>
+  <h2>Что доработать — по приоритету</h2>
+  <div class="prio">
+    <div class="card"><div class="num">01</div><div><h3>Сделать создание заметки очевидным</h3><p>Выделить кнопку «+ Заметка», при открытии показывать подсказку о первой записи. Устраняет единственный зафиксированный провал — пользователь, не создавший заметку, теряет запись совещания целиком.</p></div></div>
+    <div class="card"><div class="num">02</div><div><h3>Упростить выборку по датам</h3><p>Раскрывать фильтры по умолчанию или добавить быстрые варианты «эта неделя», «прошлая неделя». Сокращает второе по длительности задание.</p></div></div>
+    <div class="card"><div class="num">03</div><div><h3>Выяснить барьеры регулярного использования</h3><p>Короткое интервью с участниками до внесения изменений: этот показатель анкеты оказался наименьшим, а причину по данным теста не установить.</p></div></div>
+  </div>
+  <div class="foot"><span>Юзабилити «Планёрки»</span><span>8 / 9</span></div>
+</section>
+
+<!-- 9 -->
+<section class="slide" aria-label="Заключение">
+  <div class="kick">5 · Заключение</div>
+  <h2>Итоги и деловые последствия</h2>
+  <div class="cols">
+    <div>
+      <p style="margin-top:0">Основные операции новый пользователь выполняет без обучения; доверие к сохранности данных высокое. Ключевой риск — <b>первый шаг</b>: создание заметки.</p>
+      <p>Для приложения, которым пользуются во время совещания, главный экономический эффект даёт не экономия секунд, а <b>снижение доли потерянных записей</b>: восстановить содержание совещания по памяти дороже, чем лишние секунды на заметку. Поэтому доработка № 1 — приоритетная.</p>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:16px">
+      <div class="card"><h3>Ограничения</h3><p id="lim"></p></div>
+      <div class="card"><h3>Ссылки</h3><p>Приложение: <a href="../planerka/">alex-sobol-web.github.io/praktika/planerka</a><br>Протокол: <a href="../usability/">alex-sobol-web.github.io/praktika/usability</a></p></div>
+    </div>
+  </div>
+  <div class="foot"><span>Юзабилити «Планёрки»</span><span>9 / 9</span></div>
+</section>
+
+</div></div>
+
+<div class="nav" role="navigation" aria-label="Слайды">
+  <button id="prev" aria-label="Предыдущий слайд">‹</button>
+  <span id="pos">1 / 9</span>
+  <button id="next" aria-label="Следующий слайд">›</button>
+</div>
+<div class="tip" id="tip" role="tooltip"></div>
+
+<script>
+"use strict";
+/* Исходные данные — сессии протокола юзабилити-тестирования, 9 октября 2026 г.
+   Дмитрий и Павел прошли сценарий полностью. Кирилл не справился с заданием 1 (64 с);
+   задания 2–5 он по существу не выполнял (< 1,5 с на каждое), поэтому они и его анкета исключены. */
+const TASKS = ["Создать заметку о завтрашней планёрке", "Найти заметку, где обсуждался бюджет",
+  "Показать заметки за первую неделю сентября", "Убедиться, что заметки хранятся как файлы", "Удалить заметку из первого задания"];
+const SHORT = ["Создание заметки", "Поиск по слову «бюджет»", "Фильтр по датам", "Хранение в виде файлов", "Удаление заметки"];
+const Q = ["Интерфейс понятен без объяснений", "Я быстро нашёл то, что искал", "Я уверен, что заметки сохранились", "Готов пользоваться регулярно"];
+const P = [
+  { name:"Дмитрий", freq:"часто", full:true,  t:[57.2, 26.9, 38.0, 29.9, 16.0], ok:[1,1,1,1,1], a:[5,3,5,4] },
+  { name:"Павел",   freq:"часто", full:true,  t:[26.7, 17.9, 20.4, 17.2, 6.2],  ok:[1,1,1,1,1], a:[3,5,4,3] },
+  { name:"Кирилл",  freq:"часто", full:false, t:[64.0], ok:[0] },
+];
+
+const $ = (id) => document.getElementById(id);
+const fmt = (x, d = 1) => x.toFixed(d).replace(".", ",");
+const median = (a) => { const s = [...a].sort((x, y) => x - y), m = s.length >> 1; return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; };
+const mean = (a) => a.reduce((s, x) => s + x, 0) / a.length;
+
+const per = TASKS.map((_, i) => {
+  const tries = P.filter((p) => p.t[i] !== undefined);
+  const succ = tries.filter((p) => p.ok[i]);
+  return { tries:tries.length, ok:succ.length, times:succ.map((p) => ({ n:p.name, s:p.t[i] })), med:median(succ.map((p) => p.t[i])) };
+});
+const full = P.filter((p) => p.full);
+const attempts = per.reduce((s, x) => s + x.tries, 0), success = per.reduce((s, x) => s + x.ok, 0);
+const sess = full.map((p) => p.t.reduce((s, x) => s + x, 0));
+const qAvg = Q.map((_, k) => mean(full.map((p) => p.a[k])));
+const worst = per.map((x, i) => i).sort((a, b) => (per[a].ok / per[a].tries) - (per[b].ok / per[b].tries) || per[b].med - per[a].med)[0];
+
+/* слайд 3 */
+$("task-list").innerHTML = TASKS.map((t, i) => `<tr><td class="n">${i + 1}</td><td>${t}</td></tr>`).join("");
+$("who").textContent = `${P.length} человека, все ведут заметки почти на каждой встрече. ${full.map((p) => p.name).join(" и ")} прошли сценарий полностью; `
+  + `${P.filter((p) => !p.full).map((p) => p.name).join(", ")} — только задание 1. Повторные прогоны не учитывались.`;
+
+/* слайд 4 */
+$("tiles").innerHTML = [
+  ["Участников", P.length, "", `${full.length} — полный сценарий`],
+  ["Успешных попыток", Math.round(success / attempts * 100), " %", `${success} из ${attempts}`],
+  ["Полная сессия", Math.round(mean(sess)), " с", "в среднем на участника"],
+  ["Анкета", fmt(mean(full.flatMap((p) => p.a))), " из 5", "средняя оценка"],
+].map(([k, v, u, s]) => `<div class="tile"><div class="k">${k}</div><div class="v">${v}<small>${u}</small></div><div class="s">${s}</div></div>`).join("");
+
+function bars(host, items, max, fmtVal){
+  host.insertAdjacentHTML("beforeend", items.map((it) => `
+    <div class="row" data-tip="${it.tip.replace(/"/g, "&quot;")}">
+      <div class="lab"><b>${it.idx}</b>${it.label}${it.hot ? '<span class="badge">▲ узкое место</span>' : ""}</div>
+      <div class="track">
+        <div class="fill${it.hot ? " hot" : ""}" style="width:${it.v / max * 100}%"></div>
+        ${(it.dots || []).map((d) => `<span class="dot" style="left:${d / max * 100}%"></span>`).join("")}
+      </div>
+      <div class="val">${fmtVal(it.v)}</div>
+    </div>`).join(""));
+}
+bars($("ch-rate"), per.map((x, i) => ({
+  idx:i + 1, label:SHORT[i], v:x.ok / x.tries * 100, hot:i === worst,
+  tip:`${TASKS[i]}: ${x.ok} из ${x.tries} успешно`,
+})), 100, (v) => Math.round(v) + " %");
+
+const tmax = Math.ceil(Math.max(...per.flatMap((x) => x.times.map((t) => t.s))) / 10) * 10;
+bars($("ch-time"), per.map((x, i) => ({
+  idx:i + 1, label:SHORT[i], v:x.med, hot:i === worst, dots:x.times.map((t) => t.s),
+  tip:`${TASKS[i]}: медиана ${fmt(x.med)} с · ` + x.times.map((t) => `${t.n} — ${fmt(t.s)} с`).join(", ")
+    + (i === 0 ? " · Кирилл не справился за 64 с" : ""),
+})), tmax, (v) => fmt(v) + " с");
+
+bars($("ch-q"), Q.map((q, k) => ({
+  idx:"В" + (k + 1), label:q, v:qAvg[k], dots:full.map((p) => p.a[k]),
+  tip:`«${q}»: среднее ${fmt(qAvg[k])} · ` + full.map((p) => `${p.name} — ${p.a[k]}`).join(", "),
+})), 5, (v) => fmt(v));
+
+/* слайд 7 и 9 */
+$("h1").textContent = `Единственный неуспех и наибольшая медиана времени — ${fmt(per[0].med)} с. Один из трёх участников за минуту так и не создал заметку: кнопка «+ Заметка» и порядок полей очевидны не для всех.`;
+$("h2").textContent = `Задание 3 — второе по длительности (${fmt(per[2].med)} с), но оба участника с ним справились.`;
+$("h3").textContent = `Задание 4 выполнено обоими участниками за ${fmt(Math.min(...per[3].times.map((t) => t.s)))}–${fmt(Math.max(...per[3].times.map((t) => t.s)))} с.`;
+$("lim").textContent = `Выборка минимальна: ${P.length} человека, один — с неполным прохождением; все — опытные пользователи заметок; письменных комментариев участники не оставили. Результаты предварительные — причину провала в задании 1 стоит уточнить повторным тестом с наблюдением.`;
+
+/* подсказки при наведении */
+const tip = $("tip");
+document.querySelectorAll(".row[data-tip]").forEach((r) => {
+  r.addEventListener("mousemove", (e) => {
+    tip.textContent = r.dataset.tip; tip.style.display = "block";
+    const x = Math.min(e.clientX + 14, innerWidth - tip.offsetWidth - 8);
+    tip.style.left = x + "px"; tip.style.top = (e.clientY + 16) + "px";
+  });
+  r.addEventListener("mouseleave", () => { tip.style.display = "none"; });
+});
+
+/* навигация и масштаб */
+const slides = [...document.querySelectorAll(".slide")];
+let cur = 0;
+function show(i){
+  cur = Math.max(0, Math.min(slides.length - 1, i));
+  slides.forEach((s, k) => s.classList.toggle("on", k === cur));
+  $("pos").textContent = `${cur + 1} / ${slides.length}`;
+  try { history.replaceState(null, "", "#" + (cur + 1)); } catch (e) {}
+  tip.style.display = "none";
+}
+function fit(){
+  const s = Math.min(innerWidth / 1320, (innerHeight - 60) / 760);
+  $("deck").style.transform = `scale(${s})`;
+}
+$("prev").addEventListener("click", () => show(cur - 1));
+$("next").addEventListener("click", () => show(cur + 1));
+addEventListener("keydown", (e) => {
+  if (["ArrowRight", "PageDown", " "].includes(e.key)) { e.preventDefault(); show(cur + 1); }
+  if (["ArrowLeft", "PageUp"].includes(e.key)) { e.preventDefault(); show(cur - 1); }
+  if (e.key === "Home") show(0);
+  if (e.key === "End") show(slides.length - 1);
+});
+addEventListener("resize", fit);
+fit();
+show((parseInt(location.hash.slice(1), 10) || 1) - 1);
+</script>
+</body>
+</html>
