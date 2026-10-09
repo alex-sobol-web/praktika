@@ -1,0 +1,593 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Планёрка</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=PT+Serif:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.14.2/sql-asm.js"></script>
+
+<style>
+:root{
+  --ground:#F2F4F7; --surface:#FFFFFF; --surface-2:#FAFBFD;
+  --ink:#151A22; --muted:#5A6474; --line:#D9DEE7; --line-soft:#E8ECF2;
+  --accent:#2B5CA8; --accent-soft:#E4EBF7; --accent-ink:#1E4680;
+  --ok:#2C7A56; --warn:#9C6316; --crit:#A83B32;
+  --ok-soft:#E2F0E9; --crit-soft:#F7E4E2;
+  --shadow:0 1px 2px rgba(21,26,34,.06), 0 8px 24px -12px rgba(21,26,34,.18);
+  --ui:"Golos Text", "Segoe UI", system-ui, sans-serif;
+  --serif:"PT Serif", Georgia, serif;
+  --mono:"JetBrains Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#0F1319; --surface:#161B24; --surface-2:#1B212B;
+    --ink:#E6EAF1; --muted:#909AAB; --line:#262E3B; --line-soft:#1F2631;
+    --accent:#7BA3E8; --accent-soft:#1C2838; --accent-ink:#AFC8F2;
+    --ok:#5BBE8E; --warn:#D69A4A; --crit:#E08078;
+    --ok-soft:#16261F; --crit-soft:#2A1A19;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.7);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0F1319; --surface:#161B24; --surface-2:#1B212B;
+  --ink:#E6EAF1; --muted:#909AAB; --line:#262E3B; --line-soft:#1F2631;
+  --accent:#7BA3E8; --accent-soft:#1C2838; --accent-ink:#AFC8F2;
+  --ok:#5BBE8E; --warn:#D69A4A; --crit:#E08078;
+  --ok-soft:#16261F; --crit-soft:#2A1A19;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.7);
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--ground); color:var(--ink);
+  font-family:var(--ui); font-size:15px; line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+}
+button,input,textarea,select{font:inherit; color:inherit}
+:focus-visible{outline:2px solid var(--accent); outline-offset:2px; border-radius:4px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important; transition:none!important}}
+
+.app{
+  display:grid; grid-template-rows:auto 1fr auto;
+  height:100dvh; max-height:100dvh;
+}
+
+/* ── top bar ───────────────────────────── */
+.top{
+  display:flex; align-items:center; gap:16px; flex-wrap:wrap;
+  padding:10px 18px; background:var(--surface);
+  border-bottom:1px solid var(--line);
+}
+.brand{display:flex; align-items:baseline; gap:9px; margin-right:auto}
+.brand b{font-weight:700; font-size:17px; letter-spacing:-.01em}
+.brand span{
+  font-family:var(--mono); font-size:10.5px; color:var(--muted);
+  text-transform:uppercase; letter-spacing:.09em;
+}
+.seg{display:flex; background:var(--ground); border:1px solid var(--line); border-radius:8px; padding:2px}
+.seg button{
+  border:0; background:none; cursor:pointer; padding:6px 13px; border-radius:6px;
+  font-size:13px; font-weight:500; color:var(--muted); white-space:nowrap;
+  transition:background .15s, color .15s;
+}
+.seg button[aria-pressed="true"]{background:var(--surface); color:var(--ink); box-shadow:var(--shadow)}
+.btn{
+  border:1px solid var(--line); background:var(--surface); color:var(--ink);
+  padding:7px 14px; border-radius:8px; cursor:pointer; font-size:13.5px; font-weight:500;
+  transition:border-color .15s, background .15s;
+}
+.btn:hover{border-color:var(--muted)}
+.btn-primary{background:var(--accent); border-color:var(--accent); color:#fff; font-weight:600}
+.btn-primary:hover{filter:brightness(1.08); border-color:var(--accent)}
+.btn-danger{color:var(--crit); border-color:var(--line)}
+.btn-danger:hover{background:var(--crit-soft); border-color:var(--crit)}
+
+/* ── body ──────────────────────────────── */
+.main{display:grid; grid-template-columns:340px 1fr; min-height:0}
+.list-pane{
+  display:flex; flex-direction:column; min-height:0;
+  border-right:1px solid var(--line); background:var(--surface-2);
+}
+.search-box{padding:12px 14px 10px; display:flex; flex-direction:column; gap:8px; border-bottom:1px solid var(--line-soft)}
+.search-box input[type="search"], .filters input{
+  width:100%; padding:8px 11px; border:1px solid var(--line); border-radius:8px;
+  background:var(--surface); font-size:14px;
+}
+.search-box input[type="search"]{font-size:14.5px}
+.filters{display:none; grid-template-columns:1fr 1fr; gap:7px}
+.filters.open{display:grid}
+.filters label{
+  font-family:var(--mono); font-size:9.5px; text-transform:uppercase;
+  letter-spacing:.07em; color:var(--muted); display:block; margin-bottom:3px;
+}
+.filters input{font-family:var(--mono); font-size:12.5px; padding:6px 8px}
+.filter-toggle{
+  background:none; border:0; cursor:pointer; padding:0; text-align:left;
+  font-size:12.5px; color:var(--accent); font-weight:500;
+}
+.count{font-family:var(--mono); font-size:10.5px; color:var(--muted); letter-spacing:.05em}
+
+.list{flex:1; overflow-y:auto; padding:6px 8px 16px; display:flex; flex-direction:column; gap:2px}
+.item{
+  width:100%; text-align:left; border:0; background:none; cursor:pointer;
+  padding:10px 11px; border-radius:9px; display:flex; flex-direction:column; gap:3px;
+  border-left:3px solid transparent; transition:background .12s;
+}
+.item:hover{background:var(--surface)}
+.item[aria-current="true"]{background:var(--surface); border-left-color:var(--accent); box-shadow:var(--shadow)}
+.item-t{font-weight:600; font-size:14.5px; line-height:1.3; overflow-wrap:anywhere}
+.item-m{font-family:var(--mono); font-size:10.5px; color:var(--muted); display:flex; gap:7px; align-items:center}
+.item-p{
+  font-size:13px; color:var(--muted); line-height:1.4;
+  display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
+}
+mark{background:var(--accent-soft); color:var(--accent-ink); border-radius:2px; padding:0 1px}
+.chip{
+  font-family:var(--ui); font-size:9.5px; font-weight:600; text-transform:uppercase;
+  letter-spacing:.06em; padding:1px 5px; border-radius:3px;
+  background:var(--accent-soft); color:var(--accent-ink);
+}
+.empty{padding:34px 18px; text-align:center; color:var(--muted); font-size:13.5px; line-height:1.6}
+
+/* ── editor ────────────────────────────── */
+.editor{display:flex; flex-direction:column; min-height:0; background:var(--surface)}
+.ed-head{padding:20px 26px 14px; border-bottom:1px solid var(--line-soft); display:flex; flex-direction:column; gap:11px}
+.ed-title{
+  width:100%; border:0; background:none; font-family:var(--ui);
+  font-size:23px; font-weight:700; letter-spacing:-.015em; padding:0;
+}
+.ed-title::placeholder{color:var(--line)}
+.ed-meta{display:flex; gap:9px; flex-wrap:wrap; align-items:center}
+.ed-meta input{
+  border:1px solid var(--line); background:var(--surface-2); border-radius:7px;
+  padding:5px 9px; font-family:var(--mono); font-size:12.5px;
+}
+.ed-meta input[type="text"]{font-family:var(--ui); font-size:13px; min-width:180px; flex:1}
+.ed-body{
+  flex:1; width:100%; border:0; background:none; resize:none; padding:20px 26px 26px;
+  font-family:var(--serif); font-size:16px; line-height:1.68; min-height:0;
+}
+.ed-body::placeholder{color:var(--line)}
+.ed-foot{
+  padding:11px 26px; border-top:1px solid var(--line-soft);
+  display:flex; gap:9px; align-items:center; flex-wrap:wrap;
+}
+.saved{font-family:var(--mono); font-size:11px; color:var(--ok); margin-right:auto}
+.saved.idle{color:var(--muted)}
+
+/* ── inspector ─────────────────────────── */
+.inspector{
+  background:var(--surface); border-top:1px solid var(--line);
+  padding:9px 18px; display:flex; gap:22px; align-items:center; flex-wrap:wrap;
+  font-family:var(--mono); font-size:11px; color:var(--muted);
+}
+.insp-k{text-transform:uppercase; letter-spacing:.08em; font-size:9.5px}
+.insp-v{color:var(--ink); font-weight:500}
+.dot{width:6px; height:6px; border-radius:50%; background:var(--ok); display:inline-block; margin-right:5px}
+.dot.warn{background:var(--warn)}
+.files{margin-left:auto; display:flex; gap:6px; overflow-x:auto; max-width:100%}
+.file{
+  background:var(--ground); border:1px solid var(--line-soft); border-radius:4px;
+  padding:1px 6px; white-space:nowrap; font-size:10px;
+}
+
+.back{display:none}
+@media (max-width:860px){
+  .main{grid-template-columns:1fr}
+  .list-pane{border-right:0}
+  .app.detail .list-pane{display:none}
+  .app:not(.detail) .editor{display:none}
+  .back{display:inline-flex}
+  .ed-head{padding:16px 18px 12px}
+  .ed-body{padding:16px 18px 22px}
+  .ed-foot{padding:10px 18px}
+  .brand span{display:none}
+  .inspector{gap:14px}
+}
+</style>
+
+<div class="app" id="app">
+  <header class="top">
+    <div class="brand"><b>Планёрка</b><span>заметки совещаний</span></div>
+    <div class="seg" role="group" aria-label="Хранилище">
+      <button id="mode-sqlite" aria-pressed="true">SQLite</button>
+      <button id="mode-fs" aria-pressed="false">Файлы</button>
+    </div>
+    <button class="btn btn-primary" id="new-note">+ Заметка</button>
+  </header>
+
+  <div class="main">
+    <section class="list-pane" aria-label="Список заметок">
+      <div class="search-box">
+        <input type="search" id="q" placeholder="Поиск по заголовку и тексту…" autocomplete="off">
+        <button class="filter-toggle" id="ft">Фильтры по дате и времени ▾</button>
+        <div class="filters" id="filters">
+          <div><label for="df">Дата с</label><input type="date" id="df"></div>
+          <div><label for="dt">Дата по</label><input type="date" id="dt"></div>
+          <div><label for="tf">Время с</label><input type="time" id="tf"></div>
+          <div><label for="tt">Время по</label><input type="time" id="tt"></div>
+        </div>
+        <div class="count" id="count">—</div>
+      </div>
+      <div class="list" id="list"></div>
+    </section>
+
+    <section class="editor" aria-label="Редактор заметки">
+      <div class="ed-head">
+        <input class="ed-title" id="e-title" placeholder="Заголовок заметки">
+        <div class="ed-meta">
+          <button class="btn back" id="back">‹ Список</button>
+          <input type="date" id="e-date" aria-label="Дата">
+          <input type="time" id="e-time" aria-label="Время">
+          <input type="text" id="e-tags" placeholder="Теги через запятую" aria-label="Теги">
+        </div>
+      </div>
+      <textarea class="ed-body" id="e-body" placeholder="Повестка, решения, ответственные, сроки…"></textarea>
+      <div class="ed-foot">
+        <span class="saved idle" id="saved">нет открытой заметки</span>
+        <button class="btn" id="copy-store">Скопировать в другое хранилище</button>
+        <button class="btn btn-danger" id="del">Удалить</button>
+      </div>
+    </section>
+  </div>
+
+  <footer class="inspector">
+    <span><span class="dot" id="st-dot"></span><span class="insp-k">Хранилище</span> <span class="insp-v" id="st-name">SQLite</span></span>
+    <span><span class="insp-k">Записей</span> <span class="insp-v" id="st-rows">0</span></span>
+    <span><span class="insp-k">Объём</span> <span class="insp-v" id="st-size">0 Б</span></span>
+    <span><span class="insp-k">Носитель</span> <span class="insp-v" id="st-media">—</span></span>
+    <span class="files" id="st-files"></span>
+  </footer>
+</div>
+
+<script>
+"use strict";
+
+/* ═══ утилиты ═══ */
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const bytes = (n) => n < 1024 ? n + " Б" : n < 1048576 ? (n/1024).toFixed(1) + " КБ" : (n/1048576).toFixed(2) + " МБ";
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+const todayISO = () => new Date().toISOString().slice(0, 10);
+const nowHM = () => new Date().toTimeString().slice(0, 5);
+
+/* ═══ демонстрационные заметки (первый запуск) ═══ */
+const SEED = [
+  { title:"Планёрка отдела разработки", date:"2026-09-09", time:"10:00", tags:"планёрка,спринт",
+    body:"Повестка\n1. Итоги спринта 24 — закрыто 18 из 21 задачи.\n2. Перенос задачи по авторизации через СМС на спринт 25.\n3. Обновление зависимостей фронтенда.\n\nРешения\n— Задачу PROJ-412 переводим в следующий спринт, ответственный Ковалёв, срок 19.09.\n— Релиз 2.4.0 выкатываем в пятницу после регресса.\n\nВопросы без ответа\n— Кто отвечает за миграцию логов в новый сборщик?", seed:1 },
+  { title:"Совещание по бюджету на IV квартал", date:"2026-09-08", time:"14:30", tags:"бюджет,финансы",
+    body:"Присутствовали: финансовый директор, руководители трёх направлений.\n\nОсновное\n— Лимит на закупку оборудования сокращён на 12%.\n— Расходы на облачную инфраструктуру выносятся в отдельную статью.\n— Обучение сотрудников оставлено без изменений.\n\nСрок подачи уточнённых заявок — 25 сентября.", seed:1 },
+  { title:"Конференция: доклад по экспертным системам", date:"2026-09-04", time:"11:15", tags:"конференция,ИИ",
+    body:"Тезисы доклада\n— Продукционные правила остаются основой промышленных экспертных систем.\n— CLIPS применяется там, где нужен аудит цепочки вывода.\n— Гибридные схемы: правила для объяснимости, модели для оценки вероятностей.\n\nПолезный контакт: руководитель группы аналитики, обменялись материалами по базе знаний.", seed:1 },
+  { title:"Встреча с заказчиком — приёмка макетов", date:"2026-08-27", time:"16:00", tags:"заказчик,дизайн",
+    body:"Замечания по макетам\n1. Уменьшить количество шагов в форме заявки с пяти до трёх.\n2. Добавить состояние загрузки на кнопку отправки.\n3. Мобильная версия таблицы — горизонтальная прокрутка вместо переноса.\n\nПовторная приёмка назначена на 3 сентября.", seed:1 },
+];
+
+/* ═══ хранилище 1: SQLite (sql.js, asm-сборка) ═══ */
+const SqliteStore = {
+  id:"sqlite", label:"SQLite", media:"IndexedDB (файл notes.db)",
+  db:null, SQL:null, idb:null,
+
+  async _openIDB(){
+    if (this.idb) return this.idb;
+    this.idb = await new Promise((res, rej) => {
+      const r = indexedDB.open("planerka-sqlite", 1);
+      r.onupgradeneeded = () => r.result.createObjectStore("kv");
+      r.onsuccess = () => res(r.result);
+      r.onerror = () => rej(r.error);
+    });
+    return this.idb;
+  },
+  async _idbGet(k){
+    const db = await this._openIDB();
+    return new Promise((res, rej) => {
+      const t = db.transaction("kv", "readonly").objectStore("kv").get(k);
+      t.onsuccess = () => res(t.result); t.onerror = () => rej(t.error);
+    });
+  },
+  async _idbPut(k, v){
+    const db = await this._openIDB();
+    return new Promise((res, rej) => {
+      const t = db.transaction("kv", "readwrite").objectStore("kv").put(v, k);
+      t.onsuccess = () => res(); t.onerror = () => rej(t.error);
+    });
+  },
+
+  async init(){
+    this.SQL = await initSqlJs();
+    const saved = await this._idbGet("notes.db");
+    this.db = saved ? new this.SQL.Database(new Uint8Array(saved)) : new this.SQL.Database();
+    this.db.run(`CREATE TABLE IF NOT EXISTS notes(
+      id TEXT PRIMARY KEY, title TEXT NOT NULL, body TEXT NOT NULL,
+      date TEXT NOT NULL, time TEXT NOT NULL, tags TEXT NOT NULL DEFAULT '',
+      seed INTEGER NOT NULL DEFAULT 0, updated TEXT NOT NULL)`);
+    if (!saved){
+      for (const n of SEED) await this.put({ ...n, id: uid() });
+    }
+    await this._flush();
+  },
+  async _flush(){ await this._idbPut("notes.db", this.db.export()); },
+
+  async all(){
+    const r = this.db.exec("SELECT id,title,body,date,time,tags,seed FROM notes ORDER BY date DESC, time DESC");
+    if (!r.length) return [];
+    return r[0].values.map((v) => ({ id:v[0], title:v[1], body:v[2], date:v[3], time:v[4], tags:v[5], seed:v[6] }));
+  },
+  /* поиск средствами SQL — по тексту, диапазону дат и диапазону времени */
+  async search({ q, df, dt, tf, tt }){
+    const where = [], args = {};
+    if (q){ where.push("(lower(title) LIKE :q OR lower(body) LIKE :q OR lower(tags) LIKE :q)"); args[":q"] = "%" + q.toLowerCase() + "%"; }
+    if (df){ where.push("date >= :df"); args[":df"] = df; }
+    if (dt){ where.push("date <= :dt"); args[":dt"] = dt; }
+    if (tf){ where.push("time >= :tf"); args[":tf"] = tf; }
+    if (tt){ where.push("time <= :tt"); args[":tt"] = tt; }
+    const sql = "SELECT id,title,body,date,time,tags,seed FROM notes"
+      + (where.length ? " WHERE " + where.join(" AND ") : "")
+      + " ORDER BY date DESC, time DESC";
+    const st = this.db.prepare(sql); st.bind(args);
+    const out = [];
+    while (st.step()){ const o = st.getAsObject(); out.push(o); }
+    st.free();
+    return out;
+  },
+  async put(n){
+    this.db.run("INSERT INTO notes(id,title,body,date,time,tags,seed,updated) VALUES(?,?,?,?,?,?,?,?)\n"
+      + "ON CONFLICT(id) DO UPDATE SET title=excluded.title, body=excluded.body, date=excluded.date,\n"
+      + "time=excluded.time, tags=excluded.tags, updated=excluded.updated",
+      [n.id, n.title, n.body, n.date, n.time, n.tags || "", n.seed || 0, new Date().toISOString()]);
+    await this._flush();
+  },
+  async del(id){ this.db.run("DELETE FROM notes WHERE id=?", [id]); await this._flush(); },
+  async stats(){
+    const size = this.db.export().length;
+    const r = this.db.exec("SELECT COUNT(*) FROM notes");
+    return { rows: r.length ? r[0].values[0][0] : 0, size, entries: ["notes.db · " + bytes(size)] };
+  },
+};
+
+/* ═══ хранилище 2: файловая система (OPFS, одна заметка — один файл) ═══ */
+const FsStore = {
+  id:"fs", label:"Файлы", media:"OPFS · /notes/*.json", dir:null, fallback:false, mem:null,
+
+  async init(){
+    try {
+      if (!navigator.storage || !navigator.storage.getDirectory) throw new Error("no OPFS");
+      const root = await navigator.storage.getDirectory();
+      this.dir = await root.getDirectoryHandle("notes", { create:true });
+      const probe = await this.dir.getFileHandle(".probe", { create:true });
+      if (!probe.createWritable) throw new Error("no createWritable");
+      const w = await probe.createWritable(); await w.write("ok"); await w.close();
+      await this.dir.removeEntry(".probe");
+    } catch (e) {
+      /* Safari/iOS не даёт createWritable в основном потоке — честный запасной вариант */
+      this.fallback = true;
+      this.media = "Резерв: IndexedDB, файлы .json";
+      this.mem = await this._loadFallback();
+    }
+    if ((await this.list()).length === 0){
+      for (const n of SEED) await this.put({ ...n, id: uid() });
+    }
+  },
+
+  async _loadFallback(){
+    const db = await SqliteStore._openIDB();
+    return new Promise((res) => {
+      const t = db.transaction("kv", "readonly").objectStore("kv").get("fs-files");
+      t.onsuccess = () => res(t.result || {}); t.onerror = () => res({});
+    });
+  },
+  async _saveFallback(){ await SqliteStore._idbPut("fs-files", this.mem); },
+
+  _name(id){ return "note-" + id + ".json"; },
+
+  async list(){
+    if (this.fallback){
+      return Object.entries(this.mem).map(([name, text]) => ({ name, size:text.length, note:JSON.parse(text) }));
+    }
+    const out = [];
+    for await (const [name, h] of this.dir.entries()){
+      if (!name.endsWith(".json")) continue;
+      const f = await h.getFile();
+      out.push({ name, size:f.size, note:JSON.parse(await f.text()) });
+    }
+    return out;
+  },
+  async all(){
+    const files = await this.list();
+    return files.map((f) => f.note).sort((a, b) => (b.date + b.time).localeCompare(a.date + a.time));
+  },
+  /* поиск — обход файлов и фильтрация содержимого */
+  async search({ q, df, dt, tf, tt }){
+    const ql = q ? q.toLowerCase() : "";
+    return (await this.all()).filter((n) => {
+      if (ql && !(n.title + " " + n.body + " " + (n.tags || "")).toLowerCase().includes(ql)) return false;
+      if (df && n.date < df) return false;
+      if (dt && n.date > dt) return false;
+      if (tf && n.time < tf) return false;
+      if (tt && n.time > tt) return false;
+      return true;
+    });
+  },
+  async put(n){
+    const text = JSON.stringify({ ...n, tags:n.tags || "", updated:new Date().toISOString() }, null, 2);
+    if (this.fallback){ this.mem[this._name(n.id)] = text; await this._saveFallback(); return; }
+    const h = await this.dir.getFileHandle(this._name(n.id), { create:true });
+    const w = await h.createWritable(); await w.write(text); await w.close();
+  },
+  async del(id){
+    if (this.fallback){ delete this.mem[this._name(id)]; await this._saveFallback(); return; }
+    try { await this.dir.removeEntry(this._name(id)); } catch (e) {}
+  },
+  async stats(){
+    const files = await this.list();
+    const size = files.reduce((s, f) => s + f.size, 0);
+    return {
+      rows:files.length, size,
+      entries:files.slice(0, 6).map((f) => f.name + " · " + bytes(f.size)),
+    };
+  },
+};
+
+/* ═══ состояние ═══ */
+const S = { store:SqliteStore, notes:[], cur:null, dirty:false };
+
+/* ═══ отрисовка ═══ */
+function hl(text, q){
+  const e = esc(text);
+  if (!q) return e;
+  const rx = new RegExp("(" + q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + ")", "gi");
+  return e.replace(rx, "<mark>$1</mark>");
+}
+
+function renderList(){
+  const q = $("q").value.trim();
+  const box = $("list");
+  $("count").textContent = S.notes.length
+    ? S.notes.length + " из " + S.total + " · поиск " + (S.store.id === "sqlite" ? "SQL-запросом" : "обходом файлов")
+    : "";
+  if (!S.notes.length){
+    box.innerHTML = '<p class="empty">Ничего не найдено.<br>Измените запрос или сбросьте фильтры.</p>';
+    return;
+  }
+  box.innerHTML = S.notes.map((n) => `
+    <button class="item" data-id="${n.id}" ${S.cur && S.cur.id === n.id ? 'aria-current="true"' : ""}>
+      <span class="item-t">${hl(n.title || "Без заголовка", q)}</span>
+      <span class="item-m">${n.date.split("-").reverse().join(".")} · ${n.time}
+        ${n.seed ? '<span class="chip">пример</span>' : ""}</span>
+      <span class="item-p">${hl(n.body.slice(0, 140), q)}</span>
+    </button>`).join("");
+  box.querySelectorAll(".item").forEach((b) =>
+    b.addEventListener("click", () => open(S.notes.find((n) => n.id === b.dataset.id))));
+}
+
+function renderEditor(){
+  const n = S.cur;
+  const on = !!n;
+  ["e-title","e-date","e-time","e-tags","e-body"].forEach((id) => { $(id).disabled = !on; });
+  $("del").disabled = !on; $("copy-store").disabled = !on;
+  if (!on){
+    $("e-title").value = ""; $("e-body").value = ""; $("e-tags").value = "";
+    $("e-date").value = ""; $("e-time").value = "";
+    $("saved").textContent = "нет открытой заметки"; $("saved").className = "saved idle";
+    return;
+  }
+  $("e-title").value = n.title; $("e-body").value = n.body; $("e-tags").value = n.tags || "";
+  $("e-date").value = n.date; $("e-time").value = n.time;
+}
+
+async function renderStats(){
+  const s = await S.store.stats();
+  $("st-name").textContent = S.store.label;
+  $("st-rows").textContent = s.rows;
+  $("st-size").textContent = bytes(s.size);
+  $("st-media").textContent = S.store.media;
+  $("st-dot").className = "dot" + (S.store.fallback ? " warn" : "");
+  $("st-files").innerHTML = s.entries.map((e) => `<span class="file">${esc(e)}</span>`).join("");
+}
+
+/* ═══ действия ═══ */
+async function refresh(){
+  const f = {
+    q:$("q").value.trim(), df:$("df").value, dt:$("dt").value,
+    tf:$("tf").value, tt:$("tt").value,
+  };
+  S.total = (await S.store.all()).length;
+  S.notes = await S.store.search(f);
+  if (S.cur && !S.notes.some((n) => n.id === S.cur.id)){
+    const still = (await S.store.all()).find((n) => n.id === S.cur.id);
+    if (!still) S.cur = null;
+  }
+  renderList(); renderEditor(); await renderStats();
+}
+
+function open(n){
+  S.cur = n ? { ...n } : null;
+  $("app").classList.add("detail");
+  renderList(); renderEditor();
+  if (S.cur){
+    $("saved").textContent = "хранилище: " + S.store.label;
+    $("saved").className = "saved idle";
+  }
+}
+
+let saveTimer = null;
+function scheduleSave(){
+  if (!S.cur) return;
+  $("saved").textContent = "сохранение…"; $("saved").className = "saved idle";
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(async () => {
+    S.cur.title = $("e-title").value;
+    S.cur.body = $("e-body").value;
+    S.cur.tags = $("e-tags").value;
+    S.cur.date = $("e-date").value || todayISO();
+    S.cur.time = $("e-time").value || nowHM();
+    S.cur.seed = 0;
+    await S.store.put(S.cur);
+    $("saved").textContent = "сохранено в " + S.store.label;
+    $("saved").className = "saved";
+    await refresh();
+  }, 450);
+}
+
+async function switchStore(store){
+  if (S.store === store) return;
+  S.store = store; S.cur = null;
+  $("mode-sqlite").setAttribute("aria-pressed", String(store === SqliteStore));
+  $("mode-fs").setAttribute("aria-pressed", String(store === FsStore));
+  await refresh();
+}
+
+/* ═══ запуск ═══ */
+(async function boot(){
+  $("list").innerHTML = '<p class="empty">Инициализация SQLite…</p>';
+  await SqliteStore.init();
+  await FsStore.init();
+
+  $("q").addEventListener("input", refresh);
+  ["df","dt","tf","tt"].forEach((id) => $(id).addEventListener("change", refresh));
+  $("ft").addEventListener("click", () => {
+    const f = $("filters"); const open = f.classList.toggle("open");
+    $("ft").textContent = "Фильтры по дате и времени " + (open ? "▴" : "▾");
+  });
+
+  $("mode-sqlite").addEventListener("click", () => switchStore(SqliteStore));
+  $("mode-fs").addEventListener("click", () => switchStore(FsStore));
+
+  $("new-note").addEventListener("click", async () => {
+    const n = { id:uid(), title:"", body:"", date:todayISO(), time:nowHM(), tags:"", seed:0 };
+    await S.store.put(n);
+    await refresh();
+    open(n);
+    $("e-title").focus();
+  });
+
+  ["e-title","e-body","e-tags","e-date","e-time"].forEach((id) =>
+    $(id).addEventListener("input", scheduleSave));
+
+  $("del").addEventListener("click", async () => {
+    if (!S.cur) return;
+    await S.store.del(S.cur.id);
+    S.cur = null;
+    $("app").classList.remove("detail");
+    await refresh();
+  });
+
+  $("copy-store").addEventListener("click", async () => {
+    if (!S.cur) return;
+    const other = S.store === SqliteStore ? FsStore : SqliteStore;
+    await other.put({ ...S.cur, seed:0 });
+    $("saved").textContent = "скопировано в " + other.label;
+    $("saved").className = "saved";
+  });
+
+  $("back").addEventListener("click", () => {
+    $("app").classList.remove("detail");
+    S.cur = null; renderList(); renderEditor();
+  });
+
+  await refresh();
+  if (S.notes.length) open(S.notes[0]);
+  $("app").classList.remove("detail");
+})();
+</script>
+
+</body></html>

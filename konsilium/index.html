@@ -1,0 +1,414 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Консилиум</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+
+<style>
+:root{
+  --ground:#E9ECEC; --surface:#FFFFFF; --surface-2:#F4F6F5;
+  --ink:#16211F; --muted:#59665F; --line:#CFD8D5; --line-soft:#E2E8E6;
+  --accent:#0F6B5C; --accent-soft:#DDEFEB; --accent-ink:#0A4C41;
+  --hi:#A8382F; --hi-soft:#F6E4E2;
+  --md:#9A6512; --md-soft:#F6EDDC;
+  --lo:#2C7A56; --lo-soft:#E2F0E9;
+  --ui:"IBM Plex Sans","Segoe UI",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+  --shadow:0 1px 2px rgba(22,33,31,.06), 0 10px 26px -14px rgba(22,33,31,.22);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#0C1210; --surface:#131A18; --surface-2:#18201E;
+    --ink:#E3EAE7; --muted:#8A9A93; --line:#26312E; --line-soft:#1D2624;
+    --accent:#3FB39C; --accent-soft:#122A26; --accent-ink:#7FD3C2;
+    --hi:#E38279; --hi-soft:#2B1917; --md:#D7A44F; --md-soft:#2A2214;
+    --lo:#5BBE8E; --lo-soft:#14261E;
+    --shadow:0 1px 2px rgba(0,0,0,.5), 0 10px 26px -14px rgba(0,0,0,.8);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0C1210; --surface:#131A18; --surface-2:#18201E;
+  --ink:#E3EAE7; --muted:#8A9A93; --line:#26312E; --line-soft:#1D2624;
+  --accent:#3FB39C; --accent-soft:#122A26; --accent-ink:#7FD3C2;
+  --hi:#E38279; --hi-soft:#2B1917; --md:#D7A44F; --md-soft:#2A2214;
+  --lo:#5BBE8E; --lo-soft:#14261E;
+  --shadow:0 1px 2px rgba(0,0,0,.5), 0 10px 26px -14px rgba(0,0,0,.8);
+}
+
+*{box-sizing:border-box}
+body{margin:0; background:var(--ground); color:var(--ink); font-family:var(--ui); font-size:15px; line-height:1.55; -webkit-font-smoothing:antialiased}
+button,input,select{font:inherit; color:inherit}
+:focus-visible{outline:2px solid var(--accent); outline-offset:2px; border-radius:3px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important; transition:none!important}}
+
+.wrap{max-width:1240px; margin:0 auto; padding:26px 22px 56px}
+
+header.hd{display:flex; align-items:flex-end; gap:18px; flex-wrap:wrap; margin-bottom:6px}
+.hd h1{font-size:27px; font-weight:700; letter-spacing:-.02em; margin:0; text-wrap:balance}
+.hd p{margin:0 0 3px; color:var(--muted); font-size:14px; max-width:62ch}
+.kicker{font-family:var(--mono); font-size:10.5px; text-transform:uppercase; letter-spacing:.11em; color:var(--accent); font-weight:600; margin-bottom:5px}
+
+.grid{display:grid; grid-template-columns:300px 1fr 340px; gap:18px; margin-top:24px; align-items:start}
+@media (max-width:1100px){.grid{grid-template-columns:1fr 1fr}.col-out{grid-column:1 / -1}}
+@media (max-width:720px){.grid{grid-template-columns:1fr}}
+
+.panel{background:var(--surface); border:1px solid var(--line); border-radius:12px; overflow:hidden}
+.panel > h2{
+  margin:0; padding:11px 15px; font-size:11px; font-weight:600; text-transform:uppercase;
+  letter-spacing:.1em; font-family:var(--mono); color:var(--muted);
+  border-bottom:1px solid var(--line-soft); background:var(--surface-2);
+  display:flex; justify-content:space-between; align-items:center; gap:10px;
+}
+.panel-b{padding:15px}
+
+/* факты */
+.presets{display:flex; gap:5px; padding:11px 15px; border-bottom:1px solid var(--line-soft); flex-wrap:wrap}
+.presets button{
+  border:1px solid var(--line); background:var(--surface-2); border-radius:6px;
+  padding:4px 9px; font-size:11.5px; cursor:pointer; font-weight:500; transition:border-color .15s,background .15s;
+}
+.presets button:hover{border-color:var(--accent); color:var(--accent)}
+.fact{display:flex; flex-direction:column; gap:5px; padding:11px 0; border-bottom:1px dashed var(--line-soft)}
+.fact:last-child{border-bottom:0}
+.fact-h{display:flex; justify-content:space-between; align-items:baseline; gap:10px}
+.fact-h label{font-size:13.5px; font-weight:500; line-height:1.3}
+.fact-v{font-family:var(--mono); font-size:12.5px; color:var(--accent); font-weight:600; font-variant-numeric:tabular-nums; white-space:nowrap}
+.fact input[type="range"]{width:100%; accent-color:var(--accent); margin:0}
+.tog{display:flex; gap:4px}
+.tog button{
+  flex:1; border:1px solid var(--line); background:var(--surface-2); border-radius:6px;
+  padding:4px 0; font-size:12px; cursor:pointer; font-family:var(--mono); transition:background .15s,color .15s,border-color .15s;
+}
+.tog button[aria-pressed="true"]{background:var(--accent); border-color:var(--accent); color:#fff; font-weight:600}
+.fact-id{font-family:var(--mono); font-size:10px; color:var(--muted); opacity:.85}
+
+/* правила */
+.rules{display:flex; flex-direction:column}
+.rule{padding:11px 15px; border-bottom:1px solid var(--line-soft); font-family:var(--mono); font-size:12px; line-height:1.62}
+.rule:last-child{border-bottom:0}
+.rule.fired{background:var(--accent-soft)}
+.rule-h{display:flex; gap:9px; align-items:baseline; margin-bottom:3px; font-family:var(--ui)}
+.rule-id{font-family:var(--mono); font-weight:600; font-size:11.5px; color:var(--muted); letter-spacing:.02em}
+.rule.fired .rule-id{color:var(--accent-ink)}
+.rule-n{font-size:13px; font-weight:600; line-height:1.3}
+.sal{margin-left:auto; font-family:var(--mono); font-size:10px; color:var(--muted); white-space:nowrap}
+.kw{color:var(--accent); font-weight:600}
+.rule-why{font-family:var(--ui); font-size:12.5px; color:var(--muted); margin-top:5px; line-height:1.45}
+.order{
+  display:inline-block; min-width:17px; height:17px; line-height:17px; text-align:center;
+  background:var(--accent); color:#fff; border-radius:4px; font-size:10px; font-weight:700;
+  font-family:var(--mono); margin-right:2px;
+}
+
+/* вывод */
+.verdict{padding:17px 15px; border-bottom:1px solid var(--line-soft)}
+.verdict-l{font-family:var(--mono); font-size:10px; text-transform:uppercase; letter-spacing:.1em; color:var(--muted); margin-bottom:7px}
+.verdict-v{font-size:22px; font-weight:700; letter-spacing:-.01em; line-height:1.15}
+.verdict.hi{background:var(--hi-soft)} .verdict.hi .verdict-v{color:var(--hi)}
+.verdict.md{background:var(--md-soft)} .verdict.md .verdict-v{color:var(--md)}
+.verdict.lo{background:var(--lo-soft)} .verdict.lo .verdict-v{color:var(--lo)}
+
+.derived{display:flex; flex-wrap:wrap; gap:5px; padding:13px 15px; border-bottom:1px solid var(--line-soft)}
+.dfact{font-family:var(--mono); font-size:11px; background:var(--surface-2); border:1px solid var(--line-soft); border-radius:5px; padding:2px 7px}
+.dfact b{color:var(--accent); font-weight:600}
+
+.acts{list-style:none; margin:0; padding:13px 15px; display:flex; flex-direction:column; gap:9px; border-bottom:1px solid var(--line-soft)}
+.acts li{display:flex; gap:9px; font-size:13.5px; line-height:1.45}
+.acts li::before{content:"→"; color:var(--accent); font-weight:700; flex-shrink:0}
+
+.trace{padding:13px 15px; font-family:var(--mono); font-size:11.5px; line-height:1.7; max-height:330px; overflow-y:auto}
+.trace .cyc{color:var(--muted); margin-top:9px; text-transform:uppercase; letter-spacing:.07em; font-size:10px}
+.trace .cyc:first-child{margin-top:0}
+.trace .pick{color:var(--ink)}
+.trace .pick b{color:var(--accent)}
+.trace .set{color:var(--muted); padding-left:13px}
+.trace .end{color:var(--muted); margin-top:9px; padding-top:8px; border-top:1px dashed var(--line-soft)}
+
+footer.ft{margin-top:26px; color:var(--muted); font-size:12.5px; line-height:1.6; max-width:78ch}
+footer.ft b{color:var(--ink); font-weight:600}
+</style>
+
+<div class="wrap">
+  <header class="hd">
+    <div>
+      <div class="kicker">Прототип экспертной системы · продукционная модель</div>
+      <h1>Консилиум</h1>
+    </div>
+    <p>Оценка риска академической задолженности обучающегося. Прямой вывод по продукционным
+      правилам с разрешением конфликтов по приоритету и полной трассировкой рассуждения.</p>
+  </header>
+
+  <div class="grid">
+    <section class="panel">
+      <h2>Рабочая память · исходные факты</h2>
+      <div class="presets" id="presets"></div>
+      <div class="panel-b" id="facts"></div>
+    </section>
+
+    <section class="panel">
+      <h2>База знаний <span id="rule-count"></span></h2>
+      <div class="rules" id="rules"></div>
+    </section>
+
+    <section class="panel col-out">
+      <h2>Заключение и трассировка</h2>
+      <div class="verdict" id="verdict">
+        <div class="verdict-l">Итоговый уровень риска</div>
+        <div class="verdict-v" id="verdict-v">—</div>
+      </div>
+      <div class="derived" id="derived"></div>
+      <ul class="acts" id="acts"></ul>
+      <div class="trace" id="trace"></div>
+    </section>
+  </div>
+
+  <footer class="ft">
+    <b>Как это работает.</b> Машина вывода на каждом цикле сопоставляет условия всех правил
+    с рабочей памятью, формирует конфликтное множество, выбирает из него правило с наибольшим
+    приоритетом (salience) и выполняет его действие. Сработавшее правило исключается из
+    дальнейшего сопоставления (принцип рефракции), поэтому вывод конечен. Правило, назначающее
+    уже установленный факт, действие не выполняет — так приоритет определяет, чьё заключение
+    окажется итоговым. Цепочка в трассировке — это объяснение «как», которое отличает
+    экспертную систему от обычного вычисления.
+  </footer>
+</div>
+
+<script>
+"use strict";
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+/* ═══ исходные (вводимые) факты ═══ */
+const SLOTS = [
+  { id:"аттестаций_не_сдано", label:"Не сданных аттестаций в семестре", type:"range", min:0, max:9, step:1, unit:"" },
+  { id:"дней_до_дедлайна", label:"Дней до крайнего срока сдачи семестра", type:"range", min:0, max:120, step:1, unit:" дн." },
+  { id:"средний_балл", label:"Средний балл за прошлые семестры", type:"range", min:2, max:5, step:0.1, unit:"" },
+  { id:"посещаемость", label:"Посещаемость вебинаров и тьюториалов", type:"range", min:0, max:100, step:5, unit:" %" },
+  { id:"оплата_просрочена", label:"Оплата семестра просрочена", type:"bool" },
+  { id:"база_практики_утверждена", label:"База практики утверждена деканатом", type:"bool" },
+  { id:"есть_пересдачи", label:"Назначены пересдачи", type:"bool" },
+];
+
+const PRESETS = {
+  "Штатная ситуация":{ аттестаций_не_сдано:0, дней_до_дедлайна:95, средний_балл:4.6, посещаемость:85,
+    оплата_просрочена:false, база_практики_утверждена:true, есть_пересдачи:false },
+  "Пограничная":{ аттестаций_не_сдано:2, дней_до_дедлайна:50, средний_балл:3.8, посещаемость:55,
+    оплата_просрочена:false, база_практики_утверждена:true, есть_пересдачи:false },
+  "Практика под угрозой":{ аттестаций_не_сдано:1, дней_до_дедлайна:33, средний_балл:4.2, посещаемость:60,
+    оплата_просрочена:false, база_практики_утверждена:false, есть_пересдачи:false },
+  "Критическая":{ аттестаций_не_сдано:5, дней_до_дедлайна:20, средний_балл:3.2, посещаемость:25,
+    оплата_просрочена:true, база_практики_утверждена:false, есть_пересдачи:true },
+};
+
+/* ═══ база знаний: продукционные правила ═══ */
+const OPS = {
+  "==":(a,b)=>a===b, "!=":(a,b)=>a!==b,
+  ">=":(a,b)=>a>=b, "<=":(a,b)=>a<=b, ">":(a,b)=>a>b, "<":(a,b)=>a<b,
+};
+const RULES = [
+  { id:"П1", name:"Финансовая задолженность", sal:95,
+    if:[["оплата_просрочена","==",true]], set:["риск_финансовый","высокий"],
+    why:"Просроченная оплата влечёт ограничение доступа к ЭИОС и недопуск к аттестации." },
+  { id:"П2", name:"Оплата внесена", sal:94,
+    if:[["оплата_просрочена","==",false]], set:["риск_финансовый","отсутствует"],
+    why:"Финансовых препятствий к аттестации нет." },
+  { id:"П3", name:"Массовая несдача аттестаций", sal:88,
+    if:[["аттестаций_не_сдано",">=",3]], set:["риск_успеваемость","высокий"],
+    why:"Три и более незакрытых аттестации к концу семестра практически не ликвидируются в срок." },
+  { id:"П4", name:"Единичные долги по аттестациям", sal:84,
+    if:[["аттестаций_не_сдано",">=",1],["аттестаций_не_сдано","<=",2]], set:["риск_успеваемость","средний"],
+    why:"Одна-две аттестации закрываются при равномерной нагрузке." },
+  { id:"П5", name:"Долгов по аттестациям нет", sal:80,
+    if:[["аттестаций_не_сдано","==",0]], set:["риск_успеваемость","низкий"],
+    why:"Текущая аттестация пройдена полностью." },
+  { id:"П6", name:"Слабая академическая история", sal:76,
+    if:[["средний_балл","<",3.5]], set:["успеваемость_слабая","да"],
+    why:"Средний балл ниже 3,5 указывает на системные пробелы, а не разовый сбой." },
+  { id:"П7", name:"Низкая вовлечённость", sal:72,
+    if:[["посещаемость","<",40]], set:["вовлечённость","низкая"],
+    why:"Пропуск вебинаров лишает обучающегося разбора заданий и обратной связи." },
+  { id:"П8", name:"Сжатые сроки при неутверждённой базе практики", sal:68,
+    if:[["база_практики_утверждена","==",false],["дней_до_дедлайна","<=",45]],
+    set:["риск_практика","критический"],
+    why:"Договор подаётся за 30 дней до начала практики; при меньшем запасе согласование не успевает пройти." },
+  { id:"П9", name:"База практики не определена, запас есть", sal:64,
+    if:[["база_практики_утверждена","==",false],["дней_до_дедлайна",">",45]],
+    set:["риск_практика","умеренный"],
+    why:"Времени на подачу заявления или договора ещё достаточно." },
+  { id:"П10", name:"База практики согласована", sal:60,
+    if:[["база_практики_утверждена","==",true]], set:["риск_практика","отсутствует"],
+    why:"Организационная часть практики закрыта." },
+  { id:"П11", name:"Пересдачи на фоне долгов", sal:52,
+    if:[["есть_пересдачи","==",true],["риск_успеваемость","==","высокий"]], set:["академ_угроза","да"],
+    why:"Сочетание пересдач и незакрытых аттестаций — типичное преддверие отчисления." },
+  { id:"П12", name:"Совпадение финансового и учебного риска", sal:44,
+    if:[["риск_успеваемость","==","высокий"],["риск_финансовый","==","высокий"]], set:["итог","критический"],
+    why:"Два независимых блокирующих фактора одновременно." },
+  { id:"П13", name:"Срыв сроков практики", sal:40,
+    if:[["риск_практика","==","критический"]], set:["итог","критический"],
+    why:"Незачёт по практике закрывает семестр независимо от остальных дисциплин." },
+  { id:"П14", name:"Высокий учебный риск", sal:34,
+    if:[["риск_успеваемость","==","высокий"]], set:["итог","высокий"],
+    why:"Объём задолженности превышает реальную пропускную способность оставшегося срока." },
+  { id:"П15", name:"Блокирующая финансовая задолженность", sal:30,
+    if:[["риск_финансовый","==","высокий"]], set:["итог","высокий"],
+    why:"Без погашения оплаты аттестация не состоится." },
+  { id:"П16", name:"Умеренная нагрузка", sal:22,
+    if:[["риск_успеваемость","==","средний"]], set:["итог","средний"],
+    why:"Задолженность закрывается при соблюдении графика." },
+  { id:"П17", name:"Штатное прохождение семестра", sal:12,
+    if:[["риск_успеваемость","==","низкий"],["риск_финансовый","==","отсутствует"],["риск_практика","==","отсутствует"]],
+    set:["итог","низкий"],
+    why:"Все контролируемые показатели в норме." },
+  { id:"П18", name:"Рекомендация: оплата", sal:9, act:"Погасить задолженность по оплате — до этого аттестация недоступна.",
+    if:[["риск_финансовый","==","высокий"]], why:"Снимает блокирующее ограничение доступа." },
+  { id:"П19", name:"Рекомендация: практика", sal:8, act:"Немедленно направить куратору заявление о базе практики либо подписанный договор.",
+    if:[["риск_практика","==","критический"]], why:"Единственный способ сохранить зачёт по практике в текущем семестре." },
+  { id:"П20", name:"Рекомендация: график задолженностей", sal:7, act:"Согласовать с деканатом индивидуальный график ликвидации задолженностей.",
+    if:[["риск_успеваемость","==","высокий"]], why:"Переводит стихийную досдачу в контролируемый план." },
+  { id:"П21", name:"Рекомендация: вовлечённость", sal:6, act:"Подключиться к вебинарам и тьюториалам, запросить записи пропущенных.",
+    if:[["вовлечённость","==","низкая"]], why:"Восстанавливает доступ к разбору заданий." },
+  { id:"П22", name:"Рекомендация: консультация", sal:5, act:"Записаться на консультацию к преподавателю по профильным дисциплинам.",
+    if:[["успеваемость_слабая","==","да"]], why:"Адресует причину, а не следствие низкого балла." },
+];
+
+/* ═══ состояние ═══ */
+const facts = {};
+Object.assign(facts, PRESETS["Практика под угрозой"]);
+
+/* ═══ машина вывода: прямой вывод, salience, рефракция ═══ */
+function infer(input){
+  const wm = { ...input };
+  const fired = [], trace = [], acts = [];
+  const used = new Set();
+  let cycle = 0;
+
+  while (true){
+    cycle++;
+    const agenda = RULES.filter((r) =>
+      !used.has(r.id) && r.if.every(([f, op, v]) => f in wm && OPS[op](wm[f], v)));
+    if (!agenda.length){
+      trace.push({ t:"end", text:"Цикл " + cycle + ": конфликтное множество пусто — вывод завершён." });
+      break;
+    }
+    agenda.sort((a, b) => b.sal - a.sal);
+    const r = agenda[0];
+    used.add(r.id);
+
+    trace.push({ t:"cyc", text:"Цикл " + cycle + " · конфликтное множество: " + agenda.map((x) => x.id).join(", ") });
+    trace.push({ t:"pick", id:r.id, name:r.name, sal:r.sal });
+
+    if (r.act){
+      acts.push(r.act);
+      fired.push(r.id);
+      trace.push({ t:"set", text:"рекомендация ← «" + r.act + "»" });
+    } else {
+      const [f, v] = r.set;
+      if (f in wm){
+        trace.push({ t:"set", text:"факт «" + f + "» уже равен «" + wm[f] + "» — действие подавлено" });
+      } else {
+        wm[f] = v;
+        fired.push(r.id);
+        trace.push({ t:"set", text:"рабочая память ← " + f + " = " + v });
+      }
+    }
+    if (cycle > 60) break;
+  }
+  return { wm, fired, trace, acts };
+}
+
+/* ═══ отрисовка ═══ */
+function renderFacts(){
+  $("facts").innerHTML = SLOTS.map((s) => {
+    if (s.type === "bool"){
+      return `<div class="fact">
+        <div class="fact-h"><label>${esc(s.label)}</label></div>
+        <div class="tog" data-slot="${s.id}">
+          <button data-v="1" aria-pressed="${facts[s.id] === true}">да</button>
+          <button data-v="0" aria-pressed="${facts[s.id] === false}">нет</button>
+        </div>
+        <div class="fact-id">${esc(s.id)}</div></div>`;
+    }
+    return `<div class="fact">
+      <div class="fact-h"><label for="s-${s.id}">${esc(s.label)}</label>
+        <span class="fact-v" id="v-${s.id}">${facts[s.id]}${s.unit}</span></div>
+      <input type="range" id="s-${s.id}" data-slot="${s.id}"
+        min="${s.min}" max="${s.max}" step="${s.step}" value="${facts[s.id]}">
+      <div class="fact-id">${esc(s.id)}</div></div>`;
+  }).join("");
+
+  $("facts").querySelectorAll('input[type="range"]').forEach((el) =>
+    el.addEventListener("input", () => {
+      const s = SLOTS.find((x) => x.id === el.dataset.slot);
+      facts[s.id] = s.step < 1 ? parseFloat(el.value) : parseInt(el.value, 10);
+      $("v-" + s.id).textContent = facts[s.id] + s.unit;
+      run();
+    }));
+  $("facts").querySelectorAll(".tog button").forEach((el) =>
+    el.addEventListener("click", () => {
+      facts[el.parentElement.dataset.slot] = el.dataset.v === "1";
+      renderFacts(); run();
+    }));
+}
+
+function condText(c){
+  return c.map(([f, op, v]) => `${f} <span class="kw">${op}</span> ${v}`).join(" <span class=\"kw\">И</span> ");
+}
+
+function renderRules(fired){
+  $("rule-count").textContent = fired.length + " из " + RULES.length + " сработало";
+  $("rules").innerHTML = RULES.map((r) => {
+    const i = fired.indexOf(r.id);
+    const on = i >= 0;
+    const head = on ? `<span class="order">${i + 1}</span>` : "";
+    const then = r.act ? `рекомендация ← «${esc(r.act)}»` : `${r.set[0]} <span class="kw">=</span> ${r.set[1]}`;
+    return `<div class="rule${on ? " fired" : ""}">
+      <div class="rule-h">${head}<span class="rule-id">${r.id}</span>
+        <span class="rule-n">${esc(r.name)}</span><span class="sal">salience ${r.sal}</span></div>
+      <div><span class="kw">ЕСЛИ</span> ${condText(r.if)}<br>
+           <span class="kw">ТО</span> ${then}</div>
+      <div class="rule-why">${esc(r.why)}</div></div>`;
+  }).join("");
+}
+
+const LEVEL = { "критический":"hi", "высокий":"hi", "средний":"md", "низкий":"lo" };
+
+function run(){
+  const { wm, fired, trace, acts } = infer(facts);
+
+  const itog = wm["итог"] || "не определён";
+  $("verdict").className = "verdict " + (LEVEL[itog] || "");
+  $("verdict-v").textContent = itog[0].toUpperCase() + itog.slice(1);
+
+  const derived = Object.keys(wm).filter((k) => !(k in facts));
+  $("derived").innerHTML = derived.length
+    ? derived.map((k) => `<span class="dfact">${esc(k)} = <b>${esc(String(wm[k]))}</b></span>`).join("")
+    : '<span class="dfact">производных фактов нет</span>';
+
+  $("acts").innerHTML = acts.length
+    ? acts.map((a) => `<li>${esc(a)}</li>`).join("")
+    : "<li>Действий не требуется — показатели в норме.</li>";
+
+  $("trace").innerHTML = trace.map((t) => {
+    if (t.t === "cyc") return `<div class="cyc">${esc(t.text)}</div>`;
+    if (t.t === "end") return `<div class="end">${esc(t.text)}</div>`;
+    if (t.t === "pick") return `<div class="pick">выбрано <b>${t.id}</b> «${esc(t.name)}» (salience ${t.sal})</div>`;
+    return `<div class="set">${esc(t.text)}</div>`;
+  }).join("");
+
+  renderRules(fired);
+}
+
+$("presets").innerHTML = Object.keys(PRESETS)
+  .map((n) => `<button data-p="${esc(n)}">${esc(n)}</button>`).join("");
+$("presets").querySelectorAll("button").forEach((b) =>
+  b.addEventListener("click", () => {
+    Object.assign(facts, PRESETS[b.dataset.p]);
+    renderFacts(); run();
+  }));
+
+renderFacts();
+run();
+</script>
+
+</body></html>

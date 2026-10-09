@@ -1,0 +1,463 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Протокол юзабилити</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+
+<style>
+:root{
+  --ground:#F1F0EE; --surface:#FFFFFF; --surface-2:#F8F7F6;
+  --ink:#1E1B19; --muted:#6A625D; --line:#DCD8D4; --line-soft:#EBE8E5;
+  --accent:#9C4A2F; --accent-soft:#F6E7E1; --accent-ink:#7A3722;
+  --ok:#3F7A4F; --ok-soft:#E3EFE5; --warn:#9A7013; --crit:#A3392F;
+  --ui:"Onest","Segoe UI",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+  --shadow:0 1px 2px rgba(30,27,25,.06), 0 12px 28px -16px rgba(30,27,25,.22);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#131110; --surface:#1B1817; --surface-2:#211D1B;
+    --ink:#EAE6E3; --muted:#9B928C; --line:#2E2A28; --line-soft:#241F1E;
+    --accent:#D0785A; --accent-soft:#2B1B15; --accent-ink:#E9A184;
+    --ok:#66B07A; --ok-soft:#17261A; --warn:#CDA24A; --crit:#DE7E73;
+    --shadow:0 1px 2px rgba(0,0,0,.5), 0 12px 28px -16px rgba(0,0,0,.8);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#131110; --surface:#1B1817; --surface-2:#211D1B;
+  --ink:#EAE6E3; --muted:#9B928C; --line:#2E2A28; --line-soft:#241F1E;
+  --accent:#D0785A; --accent-soft:#2B1B15; --accent-ink:#E9A184;
+  --ok:#66B07A; --ok-soft:#17261A; --warn:#CDA24A; --crit:#DE7E73;
+  --shadow:0 1px 2px rgba(0,0,0,.5), 0 12px 28px -16px rgba(0,0,0,.8);
+}
+*{box-sizing:border-box}
+body{margin:0; background:var(--ground); color:var(--ink); font-family:var(--ui); font-size:15.5px; line-height:1.55; -webkit-font-smoothing:antialiased}
+button,input,textarea,select{font:inherit; color:inherit}
+:focus-visible{outline:2px solid var(--accent); outline-offset:2px; border-radius:4px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+a{color:var(--accent)}
+
+.shell{max-width:1180px; margin:0 auto; padding:24px 20px 60px}
+.bar{display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin-bottom:22px}
+.bar h1{margin:0; font-size:20px; font-weight:700; letter-spacing:-.015em}
+.bar .sub{font-family:var(--mono); font-size:10.5px; text-transform:uppercase; letter-spacing:.1em; color:var(--muted)}
+.seg{margin-left:auto; display:flex; background:var(--surface); border:1px solid var(--line); border-radius:9px; padding:2px}
+.seg button{border:0; background:none; padding:6px 14px; border-radius:7px; cursor:pointer; font-size:13.5px; font-weight:500; color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--accent); color:#fff; font-weight:600}
+
+.card{background:var(--surface); border:1px solid var(--line); border-radius:13px; padding:22px 24px; box-shadow:var(--shadow)}
+.narrow{max-width:66ch}
+h2{font-size:17px; font-weight:700; margin:0 0 10px; letter-spacing:-.01em; text-wrap:balance}
+h3{font-size:13px; font-weight:600; margin:0 0 8px; font-family:var(--mono); text-transform:uppercase; letter-spacing:.09em; color:var(--muted)}
+p{margin:0 0 12px}
+.lead{color:var(--muted); font-size:14.5px}
+
+.field{display:flex; flex-direction:column; gap:6px; margin-bottom:14px}
+.field label{font-size:13.5px; font-weight:500}
+.field input, .field select, .field textarea{
+  border:1px solid var(--line); background:var(--surface-2); border-radius:9px; padding:9px 12px; font-size:14.5px; width:100%;
+}
+.field textarea{resize:vertical; min-height:64px}
+.btn{border:1px solid var(--line); background:var(--surface); border-radius:9px; padding:9px 17px; cursor:pointer; font-size:14px; font-weight:500}
+.btn:hover{border-color:var(--muted)}
+.btn-p{background:var(--accent); border-color:var(--accent); color:#fff; font-weight:600}
+.btn-p:hover{filter:brightness(1.08); border-color:var(--accent)}
+.btn:disabled{opacity:.45; cursor:not-allowed}
+.row{display:flex; gap:9px; flex-wrap:wrap; align-items:center}
+
+.steps{display:flex; gap:5px; margin-bottom:20px}
+.step{flex:1; height:4px; border-radius:2px; background:var(--line)}
+.step.done{background:var(--ok)} .step.now{background:var(--accent)}
+
+.timer{font-family:var(--mono); font-size:40px; font-weight:600; letter-spacing:-.02em; font-variant-numeric:tabular-nums; line-height:1}
+.task-n{font-family:var(--mono); font-size:11px; color:var(--accent); text-transform:uppercase; letter-spacing:.1em; font-weight:600; margin-bottom:6px}
+.task-t{font-size:19px; font-weight:600; line-height:1.35; margin-bottom:8px; text-wrap:balance}
+.hintlist{margin:0 0 16px; padding-left:20px; color:var(--muted); font-size:14px}
+.hintlist li{margin-bottom:3px}
+
+.scale{display:flex; gap:5px}
+.scale button{flex:1; border:1px solid var(--line); background:var(--surface-2); border-radius:8px; padding:9px 0; cursor:pointer; font-family:var(--mono); font-size:14px}
+.scale button[aria-pressed="true"]{background:var(--accent); border-color:var(--accent); color:#fff; font-weight:600}
+.scale-ends{display:flex; justify-content:space-between; font-size:11.5px; color:var(--muted); margin-top:4px}
+
+/* сводка */
+.tiles{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin-bottom:18px}
+.tile{background:var(--surface); border:1px solid var(--line); border-radius:11px; padding:14px 16px}
+.tile-k{font-family:var(--mono); font-size:10px; text-transform:uppercase; letter-spacing:.09em; color:var(--muted); margin-bottom:5px}
+.tile-v{font-size:26px; font-weight:700; font-variant-numeric:tabular-nums; letter-spacing:-.02em}
+.tile-v small{font-size:14px; font-weight:500; color:var(--muted)}
+
+table{width:100%; border-collapse:collapse; font-size:14px}
+.tw{overflow-x:auto}
+th,td{text-align:left; padding:9px 11px; border-bottom:1px solid var(--line-soft)}
+th{font-family:var(--mono); font-size:10px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); font-weight:600; white-space:nowrap}
+td.num{font-family:var(--mono); font-variant-numeric:tabular-nums; white-space:nowrap}
+.barwrap{display:flex; align-items:center; gap:9px; min-width:150px}
+.barbg{flex:1; height:7px; background:var(--line); border-radius:4px; overflow:hidden}
+.barfill{height:100%; background:var(--accent); border-radius:4px}
+.barfill.ok{background:var(--ok)} .barfill.bad{background:var(--crit)}
+
+.note{background:var(--accent-soft); border:1px solid var(--line); border-left:3px solid var(--accent); border-radius:9px; padding:13px 16px; font-size:14px; margin-bottom:18px}
+.note b{font-weight:600}
+.quote{border-left:3px solid var(--line); padding:3px 0 3px 13px; margin:0 0 9px; color:var(--muted); font-size:14px}
+.empty{color:var(--muted); font-size:14px; padding:22px 0; text-align:center}
+.pill{font-family:var(--mono); font-size:10.5px; padding:2px 7px; border-radius:5px; background:var(--surface-2); border:1px solid var(--line-soft)}
+.pill.ok{background:var(--ok-soft); color:var(--ok); border-color:transparent}
+.pill.bad{background:var(--accent-soft); color:var(--accent-ink); border-color:transparent}
+.stack{display:flex; flex-direction:column; gap:18px}
+[hidden]{display:none!important}
+</style>
+
+<div class="shell">
+  <div class="bar">
+    <div>
+      <div class="sub">Юзабилити-тестирование · приложение «Планёрка»</div>
+      <h1>Протокол юзабилити</h1>
+    </div>
+    <div class="seg">
+      <button id="tab-run" aria-pressed="true">Пройти тест</button>
+      <button id="tab-res" aria-pressed="false">Результаты</button>
+    </div>
+  </div>
+
+  <!-- ═══ прохождение ═══ -->
+  <section id="view-run" class="stack">
+    <div class="card narrow" id="intro">
+      <h2>Спасибо, что согласились помочь</h2>
+      <p class="lead">Тестируем приложение для заметок с совещаний. Проверяем не вас, а интерфейс:
+        любое затруднение — это находка, а не ошибка. Займёт 7–10 минут.</p>
+      <p class="lead">Откройте приложение в соседней вкладке и возвращайтесь сюда после каждого задания.</p>
+      <div class="field">
+        <label for="p-name">Как к вам обращаться</label>
+        <input id="p-name" placeholder="Имя или псевдоним" autocomplete="off">
+      </div>
+      <div class="field">
+        <label for="p-role">Насколько часто вы ведёте заметки на встречах</label>
+        <select id="p-role">
+          <option value="часто">Почти на каждой встрече</option>
+          <option value="иногда">Иногда</option>
+          <option value="редко">Редко или никогда</option>
+        </select>
+      </div>
+      <div class="row">
+        <a class="btn" id="open-app" href="#" target="_blank" rel="noopener">Открыть «Планёрку» ↗</a>
+        <button class="btn btn-p" id="start">Начать</button>
+      </div>
+    </div>
+
+    <div class="card narrow" id="runner" hidden>
+      <div class="steps" id="steps"></div>
+      <div class="task-n" id="t-n"></div>
+      <div class="task-t" id="t-t"></div>
+      <ul class="hintlist" id="t-h"></ul>
+      <div class="row" style="margin-bottom:18px">
+        <div class="timer" id="t-timer">0.0 с</div>
+        <div style="margin-left:auto" class="row">
+          <button class="btn btn-p" id="t-done">Получилось</button>
+          <button class="btn" id="t-fail">Не смог</button>
+        </div>
+      </div>
+      <div class="field">
+        <label for="t-note">Что было непонятно или мешало? (необязательно)</label>
+        <textarea id="t-note" placeholder="Например: не нашёл, где переключить хранилище"></textarea>
+      </div>
+    </div>
+
+    <div class="card narrow" id="survey" hidden>
+      <h2>Последний шаг — четыре утверждения</h2>
+      <p class="lead">Оцените от 1 (совсем не согласен) до 5 (полностью согласен).</p>
+      <div id="q-list"></div>
+      <div class="field">
+        <label for="q-free">Что бы вы изменили в первую очередь?</label>
+        <textarea id="q-free" placeholder="Одно-два предложения"></textarea>
+      </div>
+      <button class="btn btn-p" id="finish">Завершить</button>
+    </div>
+
+    <div class="card narrow" id="thanks" hidden>
+      <h2>Готово, спасибо!</h2>
+      <p class="lead" id="thanks-t">Результаты записаны.</p>
+      <button class="btn" id="again">Провести ещё одну сессию</button>
+    </div>
+  </section>
+
+  <!-- ═══ результаты ═══ -->
+  <section id="view-res" hidden class="stack">
+    <div id="res-body"></div>
+  </section>
+</div>
+
+<script>
+"use strict";
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s == null ? "" : s).replace(/[&<>"]/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const APP_URL = "../planerka/";
+
+const TASKS = [
+  { n:"Задание 1", t:"Создайте заметку о завтрашней планёрке",
+    h:["Заголовок: «Планёрка 15 сентября»", "Поставьте дату и время начала", "В тексте — три пункта повестки"] },
+  { n:"Задание 2", t:"Найдите заметку, где обсуждался бюджет",
+    h:["Вернитесь к списку заметок", "Используйте поиск"] },
+  { n:"Задание 3", t:"Покажите только заметки за первую неделю сентября",
+    h:["Нужен диапазон с 1 по 9 сентября", "Поиск по тексту при этом не нужен"] },
+  { n:"Задание 4", t:"Убедитесь, что заметки можно хранить как отдельные файлы",
+    h:["В приложении два хранилища", "Найдите, где посмотреть список файлов"] },
+  { n:"Задание 5", t:"Удалите заметку, которую создали в первом задании",
+    h:["Откройте её из списка"] },
+];
+
+const QUESTIONS = [
+  "Интерфейс понятен без объяснений",
+  "Я быстро нашёл то, что искал",
+  "Я уверен, что мои заметки сохранились",
+  "Я готов пользоваться этим приложением регулярно",
+];
+
+const LS_KEY = "usability-planerka-sessions";
+const state = { i:0, t0:0, tick:null, results:[], answers:{}, sid:null };
+
+/* ── навигация ── */
+function tab(res){
+  $("view-run").hidden = res; $("view-res").hidden = !res;
+  $("tab-run").setAttribute("aria-pressed", String(!res));
+  $("tab-res").setAttribute("aria-pressed", String(res));
+  if (res) renderResults();
+}
+$("tab-run").addEventListener("click", () => tab(false));
+$("tab-res").addEventListener("click", () => tab(true));
+$("open-app").href = APP_URL;
+
+/* ── прохождение ── */
+function renderSteps(){
+  $("steps").innerHTML = TASKS.map((_, i) =>
+    `<div class="step ${i < state.i ? "done" : i === state.i ? "now" : ""}"></div>`).join("");
+}
+function showTask(){
+  const t = TASKS[state.i];
+  renderSteps();
+  $("t-n").textContent = t.n + " из " + TASKS.length;
+  $("t-t").textContent = t.t;
+  $("t-h").innerHTML = t.h.map((x) => `<li>${esc(x)}</li>`).join("");
+  $("t-note").value = "";
+  state.t0 = performance.now();
+  clearInterval(state.tick);
+  state.tick = setInterval(() => {
+    $("t-timer").textContent = ((performance.now() - state.t0) / 1000).toFixed(1) + " с";
+  }, 100);
+}
+function endTask(ok){
+  clearInterval(state.tick);
+  state.results.push({
+    task:state.i + 1, title:TASKS[state.i].t,
+    seconds:Math.round((performance.now() - state.t0) / 100) / 10,
+    ok, note:$("t-note").value.trim(),
+  });
+  state.i++;
+  if (state.i < TASKS.length){ showTask(); return; }
+  $("runner").hidden = true; $("survey").hidden = false;
+}
+$("t-done").addEventListener("click", () => endTask(true));
+$("t-fail").addEventListener("click", () => endTask(false));
+
+$("start").addEventListener("click", () => {
+  state.i = 0; state.results = []; state.answers = {};
+  $("intro").hidden = true; $("runner").hidden = false;
+  showTask();
+});
+
+$("q-list").innerHTML = QUESTIONS.map((q, i) => `
+  <div class="field">
+    <label>${i + 1}. ${esc(q)}</label>
+    <div class="scale" data-q="${i}">
+      ${[1,2,3,4,5].map((v) => `<button data-v="${v}" aria-pressed="false">${v}</button>`).join("")}
+    </div>
+    <div class="scale-ends"><span>не согласен</span><span>согласен</span></div>
+  </div>`).join("");
+$("q-list").querySelectorAll(".scale").forEach((sc) =>
+  sc.querySelectorAll("button").forEach((b) =>
+    b.addEventListener("click", () => {
+      sc.querySelectorAll("button").forEach((x) => x.setAttribute("aria-pressed", "false"));
+      b.setAttribute("aria-pressed", "true");
+      state.answers[sc.dataset.q] = +b.dataset.v;
+    })));
+
+$("finish").addEventListener("click", async () => {
+  $("finish").disabled = true;
+  const rec = {
+    name:$("p-name").value.trim() || "Участник",
+    frequency:$("p-role").value,
+    tasks:state.results,
+    answers:QUESTIONS.map((_, i) => state.answers[i] || null),
+    suggestion:$("q-free").value.trim(),
+    finishedAt:new Date().toISOString(),
+  };
+  const all = readSessions();
+  all.push(rec);
+  const saved = writeSessions(all);
+  $("thanks-t").textContent = saved
+    ? "Результаты записаны и вошли в сводку на вкладке «Результаты»."
+    : "Результаты показаны в сводке этой вкладки — сохранить их в браузере не удалось, выгрузите их в файл.";
+  $("survey").hidden = true; $("thanks").hidden = false;
+  $("finish").disabled = false;
+  if (!saved) localBuf.push(rec);
+});
+
+$("again").addEventListener("click", () => {
+  $("thanks").hidden = true; $("intro").hidden = false;
+  $("p-name").value = ""; $("q-free").value = "";
+  $("q-list").querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", "false"));
+});
+
+/* ── сводка ── */
+const localBuf = [];
+const avg = (a) => a.length ? a.reduce((s, x) => s + x, 0) / a.length : 0;
+const med = (a) => { if (!a.length) return 0; const s = [...a].sort((x, y) => x - y); const m = s.length >> 1;
+  return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; };
+
+function readSessions(){
+  try { const v = JSON.parse(localStorage.getItem(LS_KEY) || "[]"); return Array.isArray(v) ? v : []; }
+  catch (e) { return []; }
+}
+function writeSessions(arr){
+  try { localStorage.setItem(LS_KEY, JSON.stringify(arr)); return true; } catch (e) { return false; }
+}
+async function loadSessions(){ return readSessions().concat(localBuf); }
+
+/* выгрузка и загрузка сессий — для сведения результатов с разных устройств */
+function exportSessions(){
+  const blob = new Blob([JSON.stringify(readSessions().concat(localBuf), null, 2)], { type:"application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "usability-sessions-" + new Date().toISOString().slice(0, 10) + ".json";
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+function importSessions(file){
+  const r = new FileReader();
+  r.onload = () => {
+    try {
+      const inc = JSON.parse(r.result);
+      if (!Array.isArray(inc)) throw new Error();
+      const cur = readSessions();
+      const key = (x) => x.name + "|" + x.finishedAt;
+      const seen = new Set(cur.map(key));
+      inc.forEach((x) => { if (x && x.tasks && !seen.has(key(x))) { cur.push(x); seen.add(key(x)); } });
+      writeSessions(cur);
+      renderResults();
+    } catch (e) { alert("Файл не похож на выгрузку протокола."); }
+  };
+  r.readAsText(file);
+}
+function resultsToolbar(n){
+  return `<div class="row" style="margin-bottom:18px">
+    <span class="pill">сессий в этом браузере: ${n}</span>
+    <button class="btn" id="exp" style="margin-left:auto">Выгрузить JSON</button>
+    <label class="btn" style="display:inline-block">Загрузить JSON<input type="file" id="imp" accept="application/json,.json" hidden></label>
+  </div>`;
+}
+function bindToolbar(){
+  const e = $("exp"), i = $("imp");
+  if (e) e.addEventListener("click", exportSessions);
+  if (i) i.addEventListener("change", () => { if (i.files[0]) importSessions(i.files[0]); });
+}
+
+async function renderResults(){
+  const S = await loadSessions();
+  const box = $("res-body");
+  if (!S.length){
+    box.innerHTML = resultsToolbar(0) + `<div class="card"><div class="empty">
+      Пока нет ни одной сессии.<br>Проведите тест с 3–5 участниками — сводка соберётся здесь сама.
+    </div></div>`;
+    bindToolbar();
+    return;
+  }
+
+  const perTask = TASKS.map((t, i) => {
+    const rs = S.map((s) => (s.tasks || []).find((x) => x.task === i + 1)).filter(Boolean);
+    const okd = rs.filter((r) => r.ok);
+    return {
+      n:i + 1, title:t.t, tried:rs.length,
+      ok:okd.length,
+      rate:rs.length ? okd.length / rs.length : 0,
+      median:med(okd.map((r) => r.seconds)),
+      notes:rs.map((r) => r.note).filter(Boolean),
+    };
+  });
+
+  const allAns = [0,1,2,3].map((i) => S.map((s) => (s.answers || [])[i]).filter((v) => typeof v === "number"));
+  const sat = avg(allAns.flat());
+  const overallRate = avg(perTask.map((p) => p.rate));
+  const totalTime = avg(S.map((s) => (s.tasks || []).reduce((a, b) => a + (b.seconds || 0), 0)));
+
+  const worst = [...perTask].sort((a, b) => a.rate - b.rate || b.median - a.median)[0];
+
+  box.innerHTML = resultsToolbar(S.length) + `
+  <div class="tiles">
+    <div class="tile"><div class="tile-k">Участников</div><div class="tile-v">${S.length}</div></div>
+    <div class="tile"><div class="tile-k">Успешность заданий</div><div class="tile-v">${Math.round(overallRate * 100)}<small> %</small></div></div>
+    <div class="tile"><div class="tile-k">Средняя сессия</div><div class="tile-v">${Math.round(totalTime)}<small> с</small></div></div>
+    <div class="tile"><div class="tile-k">Удовлетворённость</div><div class="tile-v">${sat.toFixed(1)}<small> из 5</small></div></div>
+  </div>
+
+  ${S.length < 3 ? `<div class="note"><b>Выборки пока недостаточно.</b>
+    Для выводов нужно не менее трёх участников — сейчас ${S.length}.</div>` : ""}
+
+  <div class="card" style="margin-bottom:18px">
+    <h3>По заданиям</h3>
+    <div class="tw"><table>
+      <thead><tr><th>№</th><th>Задание</th><th>Успешность</th><th>Медиана времени</th><th>Успешно</th></tr></thead>
+      <tbody>${perTask.map((p) => `
+        <tr>
+          <td class="num">${p.n}</td>
+          <td>${esc(p.title)}</td>
+          <td><div class="barwrap">
+            <div class="barbg"><div class="barfill ${p.rate >= .8 ? "ok" : p.rate < .5 ? "bad" : ""}" style="width:${Math.round(p.rate * 100)}%"></div></div>
+            <span class="num">${Math.round(p.rate * 100)} %</span></div></td>
+          <td class="num">${p.median ? p.median.toFixed(1) + " с" : "—"}</td>
+          <td class="num">${p.ok} / ${p.tried}</td>
+        </tr>`).join("")}</tbody>
+    </table></div>
+  </div>
+
+  <div class="card" style="margin-bottom:18px">
+    <h3>Утверждения анкеты</h3>
+    <div class="tw"><table>
+      <thead><tr><th>Утверждение</th><th>Среднее</th><th>Оценки</th></tr></thead>
+      <tbody>${QUESTIONS.map((q, i) => {
+        const a = allAns[i]; const m = avg(a);
+        return `<tr><td>${esc(q)}</td><td class="num">${a.length ? m.toFixed(1) : "—"}</td>
+          <td><div class="barwrap"><div class="barbg">
+            <div class="barfill ${m >= 4 ? "ok" : m && m < 3 ? "bad" : ""}" style="width:${Math.round(m / 5 * 100)}%"></div>
+          </div><span class="num">${a.map((v) => v).join(" ") || "—"}</span></div></td></tr>`;
+      }).join("")}</tbody>
+    </table></div>
+  </div>
+
+  <div class="card" style="margin-bottom:18px">
+    <h3>Узкое место</h3>
+    <p><b>${esc(worst.title)}</b> — успешность ${Math.round(worst.rate * 100)} %${worst.median ? ", медиана " + worst.median.toFixed(1) + " с" : ""}.
+      ${worst.rate < .8 ? "Это задание даётся участникам тяжелее остальных и требует доработки интерфейса в первую очередь."
+        : "Явных провалов нет: все задания проходятся уверенно."}</p>
+  </div>
+
+  <div class="card">
+    <h3>Что говорили участники</h3>
+    ${(() => {
+      const qs = [];
+      S.forEach((s) => {
+        (s.tasks || []).forEach((t) => { if (t.note) qs.push([s.name, t.note]); });
+        if (s.suggestion) qs.push([s.name, s.suggestion]);
+      });
+      return qs.length
+        ? qs.map(([n, q]) => `<blockquote class="quote">«${esc(q)}» <span class="pill">${esc(n)}</span></blockquote>`).join("")
+        : '<div class="empty">Замечаний не оставили.</div>';
+    })()}
+  </div>`;
+  bindToolbar();
+}
+
+
+renderSteps();
+</script>
+
+</body></html>
