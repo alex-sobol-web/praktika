@@ -7,5 +7,6 @@
 | № 3 | «Консилиум» — прототип экспертной системы | https://alex-sobol-web.github.io/praktika/konsilium/ |
 | № 4 | «Планёрка» — заметки на совещаниях (SQLite и файлы) | https://alex-sobol-web.github.io/praktika/planerka/ |
 | № 5 | Протокол юзабилити-тестирования «Планёрки» | https://alex-sobol-web.github.io/praktika/usability/ |
+| № 5 | Презентация результатов тестирования | https://alex-sobol-web.github.io/praktika/presentation/ |
 
 Все приложения — статические страницы (HTML, CSS, JavaScript), работают в браузере без установки.

@@ -62,13 +62,13 @@ ul.clean li::before{content:""; position:absolute; left:0; top:.62em; width:10px
 .tile .s{font-size:14.5px; color:var(--muted); margin-top:4px}
 
 /* горизонтальные столбцы */
-.chart{display:flex; flex-direction:column; gap:10px}
+.chart{display:flex; flex-direction:column; gap:16px}
 .chart-t{font-size:17px; font-weight:600; margin-bottom:4px}
 .chart-t span{font-weight:400; color:var(--muted)}
 .row{display:grid; grid-template-columns:300px 1fr 92px; gap:14px; align-items:center; position:relative}
 .row .lab{font-size:17px; line-height:1.25}
 .row .lab b{font-family:var(--mono); font-size:13px; color:var(--muted); font-weight:500; margin-right:6px}
-.track{height:26px; position:relative; border-left:1px solid var(--line)}
+.track{height:34px; position:relative; border-left:1px solid var(--line)}
 .fill{position:absolute; left:0; top:3px; bottom:3px; border-radius:0 4px 4px 0; background:var(--bar); min-width:2px}
 .fill.hot{background:var(--crit)}
 .dot{position:absolute; top:50%; width:10px; height:10px; margin:-5px 0 0 -5px; border-radius:50%; background:var(--surface); border:2px solid var(--ink)}
@@ -89,7 +89,7 @@ td.n{font-family:var(--mono); font-variant-numeric:tabular-nums; white-space:now
 
 .card{background:var(--surface-2); border:1px solid var(--line-soft); border-radius:12px; padding:22px 26px}
 .card h3{margin:0 0 8px; font-size:22px}
-.card p{margin:0; font-size:18.5px; line-height:1.5}
+.card p{margin:0; font-size:18px; line-height:1.45}
 .prio{display:flex; flex-direction:column; gap:16px}
 .prio .card{display:grid; grid-template-columns:54px 1fr; gap:18px; align-items:start}
 .prio .num{font-family:var(--mono); font-size:30px; font-weight:600; color:var(--accent); line-height:1}
@@ -169,7 +169,7 @@ a{color:var(--accent)}
         <tbody id="task-list"></tbody>
       </table>
     </div>
-    <div style="display:flex; flex-direction:column; gap:16px">
+    <div style="display:flex; flex-direction:column; gap:12px">
       <div class="card"><h3>Участники</h3><p id="who"></p></div>
       <div class="card"><h3>Инструмент</h3><p>Электронный протокол: таймер на каждое задание, исход «получилось / не смог», комментарий участника, анкета из 4 утверждений по шкале 1–5.</p></div>
       <div class="card"><h3>Правила</h3><p>Задания сформулированы через цель, а не через кнопки; подсказки не давались. Медиана времени — по успешным попыткам.</p></div>
@@ -246,7 +246,7 @@ a{color:var(--accent)}
     </div>
     <div style="display:flex; flex-direction:column; gap:16px">
       <div class="card"><h3>Ограничения</h3><p id="lim"></p></div>
-      <div class="card"><h3>Ссылки</h3><p>Приложение: <a href="../planerka/">alex-sobol-web.github.io/praktika/planerka</a><br>Протокол: <a href="../usability/">alex-sobol-web.github.io/praktika/usability</a></p></div>
+      <div class="card"><h3>Ссылки</h3><p><a href="../planerka/">Приложение «Планёрка» ↗</a><br><a href="../usability/">Протокол тестирования ↗</a><br><a href="../">Все решения практики ↗</a></p></div>
     </div>
   </div>
   <div class="foot"><span>Юзабилити «Планёрки»</span><span>9 / 9</span></div>
